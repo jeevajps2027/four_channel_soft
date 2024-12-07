@@ -1,0 +1,220 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box; /* Includes border in the width and height calculations */
+    overflow: hidden; /* Prevents scrolling caused by overflow */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    border: 5px solid lightseagreen ;
+} 
+.container_1 {
+    height: 25%;
+    width: 100%;
+    border: 1px solid black;
+} 
+.container_1_1 {
+    height:25%;
+    width: 100%;
+    background-color: lightgray;
+    border: 1px solid black;
+    margin: 0;
+    padding: 0;
+}  
+#clock-box{
+    width: 30%; 
+    height: 100%; 
+    box-sizing: border-box; 
+    font-weight: bold;
+   font-size: 30px;
+   text-align: center;
+}
+
+#close_btn {
+   margin-left:60% ;
+    background-color: #ff4c4c; 
+    border: none;
+    border-radius: 5px;
+    width: 5%;
+    height: 100%;
+   
+}
+
+#close_icon {
+    font-size: 30px;
+    color: white; 
+}
+
+.container_2 {
+    height:50%;
+    width: 100%;
+    background-color: lightblue;
+    border: 1px solid black;
+    display: flex;
+} 
+.sub_container_2{
+    height: 100%;
+    width: 25%;
+    border: 1px solid black;
+    background-color: rgb(149, 183, 246);
+    display: flex;
+    flex-direction: column; /* Stack canvas and input vertically */
+    align-items: center;   /* Center horizontally */
+    position: relative; /* Required for absolute positioning adjustments */
+}
+.sub_container_2 label{
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.sub_container_2 select{
+    font-weight: bold;
+    font-size: 35px;
+    text-align: center;
+    margin-top: 1%;
+}
+#partModel{
+    width: 80%;
+    height: 50%;
+}
+input[type="radio"] {
+    transform: scale(1.5); /* Adjust the scale value to increase size */
+    
+}
+#mastering{
+    width: 30%;
+    height: 50%;
+}
+.sub_container_2 button{
+    height: 40%;
+    width: 80%;
+    margin-top: 1%;
+    font-weight: bold;
+    font-size: 25px;
+    text-align: center;
+    background-color: blue;
+    color: white;
+}
+.container_3{
+    height: 25%;
+    width: 100%;
+    border: 1px solid black;
+}
+#pre{
+    height: 90%;
+    width: 100%;
+    background-color: rgb(246, 182, 62);
+    text-align: center;
+    font-weight: bold;
+    font-size: 30px; 
+}
+.container-4{
+    height: 60%;
+    width: 100%;
+    display: flex;
+    border: 1px solid black;
+    background-color: bisque;
+}
+/* Container Styling */
+.sub_container_4 {
+    height: 100%;
+    width: 25%;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Top Input Box */
+.input-box {
+    width: 100%;
+    height: 10%;
+    box-sizing: border-box;
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+/* Grid Container */
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    flex-grow: 1;
+}
+
+/* Individual Grid Items */
+.item {
+    display: flex;
+    flex-direction: column; /* Stack label and input vertically */
+    justify-content: flex-start; /* Align items at the top */
+    align-items: center; /* Center horizontally */
+    border: 1px solid black;
+    background-color: rgb(228, 194, 244);
+}
+
+.item-label {
+    margin-top: 3%;
+    margin-bottom: 5px; /* Space between label and input */
+    font-weight: bold; /* Make label text bold */
+    font-size: 17px;
+    text-align: center; /* Center align the label text */
+}
+
+.input-box1 {
+    width: 80%; /* Adjust the width of the input box */
+    padding: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+/* Center Input Box */
+.center-box {
+    margin-top: 1%;
+   font-weight: bold;
+   font-size: 40px;
+   text-align: center;
+    height: 20%;
+}
+
+
+.input-box1{
+    width: 100%;
+    height:50%;
+    font-weight: bold;
+    font-size: 30px;
+    margin-top: 5%;
+    text-align: center;
+}
+.container-5{
+    height: 15%;
+    width: 100%;
+    display: flex;
+    border: 1px solid black;
+}
+.container_5_1{
+    height: 100%;
+    width: 100%;
+    border: 1px solid black;
+    background-color: beige;
+}
+#measureBtn{
+    height: 60%;
+    width: 15%;
+    margin-top: 1%;
+    margin-left: 75%;
+    border: 1px solid black;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    font-size: 25px;
+}

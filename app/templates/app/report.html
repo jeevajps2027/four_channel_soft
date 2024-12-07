@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <title>Report</title>  
+</head>
+<body>
+    <style>
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box; /* Includes border in the width and height calculations */
+    overflow: hidden; /* Prevents scrolling caused by overflow */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    border: 5px solid lightseagreen ;
+} 
+
+.container-1 {
+    height: 15%;
+    width: 100%;
+    border: 1px solid black;
+}
+.container-2 {
+    height: 85%;
+    width: 100%;
+    border: 1px solid black;
+}
+
+.container-1-1 {
+    height: 45%; /* Allow the container to fill 100% height of its parent */
+    width: 100%;
+    background-color: lightgray;
+    border: 1px solid black;
+    display: flex;
+    padding:2px;
+}
+
+
+#exit_btn {
+   margin-left:15% ;
+    background-color: #ff4c4c; /* Example: red background */
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    width: 5%;
+   
+}
+
+#exit_icon {
+    font-size: 35px; /* Adjust the icon size */
+    color: white; /* Set the icon color */
+}
+
+
+.container-1-2 {
+    height: 45%; /* Allow the container to fill 100% height of its parent */
+    width: 100%;
+    background-color: lightgray;
+    border: 1px solid black;
+    display: flex;
+    padding:2px;
+}
+
+.container-1-2 label ,.container-1-1  label{
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 2%;
+}
+
+input[type="datetime-local"] {
+    width: 15%;
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 1%;
+}
+
+select{
+    width: 15%;
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 1%;
+}
+
+#status_select {
+    color: black; /* Default text color */
+}
+
+#status_select option {
+    color: black; /* Default option color */
+    font-weight: bold;
+    font-size: 18px;
+}
+
+#status_select option[value="accept"] {
+    color: green;
+}
+
+#status_select option[value="reject"] {
+    color: red;
+}
+
+#status_select option[value="rework"] {
+    color: goldenrod;
+}
+
+
+button#search_btn {
+    background-color: blue; /* Light gray background */
+    border: 1px solid white;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left:15% ;
+    width: 5%;
+    height: 100%;
+}
+
+button#search_btn:hover {
+    background-color: rgb(59, 59, 238); /* Slightly darker on hover */
+}
+
+#search_icon {
+    font-size: 30px; /* Adjust icon size */
+    color: white; /* Icon color */
+}
+
+
+button#download_btn {
+    background-color: #10ee10; /* Light gray background */
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left:15% ;
+    width: 5%;
+    height: 100%;
+}
+
+button#download_btn:hover {
+    background-color: #33dc33; /* Slightly darker on hover */
+}
+
+#download_icon {
+    font-size: 30px; /* Adjust icon size */
+    color: #333; /* Icon color */
+}
+
+
+button#left_arrow_btn,button#right_arrow_btn {
+    background-color:purple; /* Light gray background */
+    border: none;
+    padding: 10px;
+    border-radius: 50px;
+    cursor: pointer;
+    width: 5%;
+    height: 100%;
+}
+
+button#left_arrow_btn{
+    margin-left: 5%;
+}
+button#left_arrow_btn:hover ,button#right_arrow_btn:hover  {
+    background-color: rgb(199, 18, 199); /* Slightly darker on hover */
+}
+
+#left_arrow_icon, #right_arrow_icon {
+    font-size: 30px; /* Adjust icon size */
+    color: white; /* Icon color */
+}
+
+table {
+            border-collapse: collapse;
+            width: 100%;
+            height: 100%;
+            border: 2px solid black;
+           
+        }
+
+        th, td {
+            text-align: center;
+            border: 1px solid black;
+        }
+
+        thead {
+            height:13%;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            background-color: lightseagreen ;
+        }
+        
+        #tableBody-1 input {
+            height: 90%;
+            width: 90%;
+            box-sizing: border-box;
+            font-size: 17px;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            border: none;
+            
+        }
+
+</style>
+
+<div class="container-1">
+    <div class="container-1-1">
+        <label for="start_date">START DATE:</label>
+        <input type="datetime-local" id="start_date" >
+        <label for="shift_select">SHIFT SELECT:</label>
+        <select id="shift_select" style="margin-left: 2%;" ></select>
+
+        <button type="submit" id="search_btn">
+            <i class="fas fa-search" id="search_icon"></i>
+        </button>
+        
+        <button type="submit" id="exit_btn">
+            <i class="fas fa-times" id="exit_icon"></i>
+        </button>
+
+
+       
+    </div>
+    <div class="container-1-2">
+        <label for="end_date">END DATE :</label>
+        <input type="datetime-local" id="end_date" style=" margin-left: 2%;">
+
+        <label for="status_select">STATUS SELECT:</label>
+        <select id="status_select">
+            <option value="" disabled selected>Select the status</option>
+            <option value="accept" id="accept">ACCEPT</option>
+            <option value="reject" id="reject">REJECT</option>
+            <option value="rework" id="rework">REWORK</option>
+        </select>
+
+        <button type="button" id="download_btn">
+            <i class="fas fa-download" id="download_icon"></i>
+        </button>
+
+        <button type="button" id="left_arrow_btn">
+            <i class="fas fa-arrow-left" id="left_arrow_icon"></i>
+        </button>
+
+        <button type="button" id="right_arrow_btn">
+            <i class="fas fa-arrow-right" id="right_arrow_icon"></i>
+        </button>
+        
+        
+        
+        
+       
+    </div>
+    </div>
+    <div class="container-2">
+        <table border="1" >
+            <thead>
+                <tr>
+                    <th style="width: 2%;">SR.NO</th>
+                    <th style="width: 7%;">DATE</th>
+                    <th style="width: 13%;">PUNCH NO</th>
+                    <th style="width:8%;">PART MODEL</th>
+                    <th style="width: 8%;">PARAMETER NAME</th>
+                    <th style="width: 10%;">OPERATOR</th>
+                    <th style="width: 5%;">SHIFT</th>
+                    <th style="width: 5%;">MAX</th>
+                    <th style="width: 5%;">MIN</th>
+                    <th style="width: 5%;">CUR</th>
+                    <th style="width: 5%;">TIR</th>
+                    <th style="width: 5%;">STATUS</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody-1">
+                
+                <tr>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                    <td><input type="text" style="width: 100%;" /></td>
+                </tr>
+               
+                
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

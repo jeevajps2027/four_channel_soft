@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <title>Mastering</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/master.css'%}">
+    
+</head>
+<body>
+    <div class="container_1">
+        <div class="container_1_1">
+            <input type="text" id="clock-box" >
+            <button type="button" id="close_btn">
+                <i class="fas fa-times" id="close_icon"></i>
+            </button>
+        </div>
+
+        <div class="container_2">
+            <div class="sub_container_2">
+                <label for="partModel">PART MODEL:</label>
+                <select id="partModel" name="partModel">    
+                </select>
+            </div>
+            <div class="sub_container_2">
+                <label for="all_parameter" style="margin-top: 2%;">
+                    All Parameters :
+                    <input type="radio" name="radio_selection"  id="all_parameter" onclick="handleRadioClick(this)">
+                </label>
+                
+                <label for="parameterwise"  style="margin-top: 2%;">
+                    Parameterwise :
+                    <input type="radio" name="radio_selection"  id="parameterwise" onclick="handleRadioClick(this)">
+                </label>
+            </div>
+            <div class="sub_container_2">
+                <label for="mastering" >MASTERING GROUP:</label>
+                <select id="mastering" name="mastering" onchange="updateMastering()">
+                    <script>
+                        for (var i = 1; i <= 10; i++) {
+                            document.write('<option value="' + i + '">' + i + '</option>');
+                        }
+                    </script>
+                </select>
+            </div>
+            <div class="sub_container_2">
+                <button id="lowMasterBtn" type="button" onclick="lowMasteringClick()">Low Mastering</button>
+                <button id="highMasterBtn" type="button" onclick="highMasteringClick()">High Mastering</button>
+            </div>
+        </div>
+        <div class="container_3">
+            <input type="text" id="pre">
+        </div>
+    </div>
+
+
+    <div class="container-4">
+        <div class="sub_container_4">
+            <!-- Top Input Box -->
+            <input type="text" id="para_name1" class="input-box" />
+        
+            <!-- Grid Items -->
+            <div class="grid-container">
+                <div class="item">
+                    <label class="item-label">LOW MASTER</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">LOW RAW COUNT</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">HIGH MASTER</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">HIGH RAW COUNT</label>
+                    <input type="text" class="input-box1" />
+                </div>
+            </div>
+        
+            <input type="text" id="center_input1" class="input-box center-box" />
+        </div>
+        
+        
+        <div class="sub_container_4">
+            <input type="text" id="para_name2" class="input-box" />
+            <!-- Grid Items -->
+            <div class="grid-container">
+                <div class="item">
+                    <label class="item-label">LOW MASTER</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">LOW RAW COUNT</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">HIGH MASTER</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">HIGH RAW COUNT</label>
+                    <input type="text" class="input-box1" />
+                </div>
+            </div>
+        
+            <input type="text" id="center_input2" class="input-box center-box" />
+        </div>
+        <div class="sub_container_4">
+            <input type="text" id="para_name3" class="input-box" />
+            <!-- Grid Items -->
+            <div class="grid-container">
+                <div class="item">
+                    <label class="item-label">LOW MASTER</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">LOW RAW COUNT</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">HIGH MASTER</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">HIGH RAW COUNT</label>
+                    <input type="text" class="input-box1" />
+                </div>
+            </div>
+        
+            <input type="text" id="center_input3" class="input-box center-box" />
+        </div>
+        <div class="sub_container_4">
+            <input type="text" id="para_name4" class="input-box" />
+            <!-- Grid Items -->
+            <div class="grid-container">
+                <div class="item">
+                    <label class="item-label">LOW MASTER</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">LOW RAW COUNT</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">HIGH MASTER</label>
+                    <input type="text" class="input-box1" />
+                </div>
+                <div class="item">
+                    <label class="item-label">HIGH RAW COUNT</label>
+                    <input type="text" class="input-box1" />
+                </div>
+            </div>
+        
+            <input type="text" id="center_input4" class="input-box center-box" />
+        </div>
+    </div>
+    <div class="container-5">
+        <div class="container_5_1">
+        <button id="measureBtn" type="button" onclick="MeasureBtnClick()"><b>Measurement<br>F1</b></button>
+    </div>
+    </div>
+</body>
+</html>

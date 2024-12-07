@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <title>Report</title>  
+</head>
+<body>
+    <style>
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box; 
+    overflow: hidden; 
+}
+
+body {
+    font-family: Arial, sans-serif;
+    border: 5px solid lightseagreen ;
+} 
+
+
+.container-1 {
+    height: 20%;
+    width: 100%;
+    border: 1px solid black;
+}
+
+
+
+
+
+
+      
+.container-1-1 {
+    height:30%;
+    width: 100%;
+    background-color: lightgray;
+    border: 1px solid black;
+    margin: 0;
+    padding: 0;
+    display: flex; /* Enables flexbox */
+    justify-content: center; /* Centers the label horizontally */
+    align-items: center; /* Centers the label vertically */
+    font-weight: bold;
+    font-size: 35px;
+    position: relative; /* Enables absolute positioning for children */
+}
+
+.container_1_1 label {
+    margin: 0; /* Ensures the label stays perfectly centered */
+}
+
+#close_btn {
+    position: absolute; /* Allows placement in the corner */
+    right: 2%; /* Adjust distance from the right edge */
+    background-color: #ff4c4c; /* Button background color */
+    border: none; /* Removes border */
+    border-radius: 5px; /* Rounded corners */
+    width: 5%; /* Button width */
+    height: 100%; /* Adjust the button height */
+    display: flex; /* Flex layout for the icon */
+    justify-content: center; /* Center the icon horizontally */
+    align-items: center; /* Center the icon vertically */
+    cursor: pointer; /* Changes cursor to pointer on hover */
+}
+
+#close_icon {
+    font-size: 30px; /* Icon size */
+    color: white; /* Icon color */
+}
+
+
+.container-1-2 {
+    height: 60%; /* Allow the container to fill 100% height of its parent */
+    width: 100%;
+    background-color: lightgray;
+    border: 1px solid black;
+    display: flex;
+    padding:2px;
+    justify-content: center; /* Centers buttons horizontally */
+    align-items: center; /* Centers buttons vertically */
+    gap: 20px; /* Adds gap between buttons */
+}
+
+
+
+.container-1-2 button {
+    height: 80%;
+    width: 20%;
+    padding: 10px 20px; /* Add padding for better button size */
+    font-size: 25px; /* Adjust font size */
+    font-weight: bold;
+    background-color: #007bff; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth color transition on hover */
+}
+
+.container-1-2 button:hover {
+    background-color: #0056b3; /* Darker background on hover */
+}
+
+
+.container-2 {
+    height: 80%;
+    width: 100%;
+    border: 1px solid black;
+    display: flex; /* Enables flexbox */
+    justify-content: center; /* Centers container-2-1 horizontally */
+    align-items: center; /* Centers container-2-1 vertically */
+    background-color: lightblue;
+}
+
+
+
+.container-2-1 {
+    height: 90%;
+    width: 90%;
+    border: 2px solid black;
+    background-color: lightsalmon;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+
+.sub-container {
+    height: 100%;
+    width: 100%;
+    border: 1px solid black;
+    background-color: white;
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+.left-column {
+    width: 50%; 
+    height: 100%; 
+    border: 1px solid gray; 
+    display: flex;
+    flex-direction: column;
+    gap: 10px; 
+    /* justify-content: center;  */
+    align-items: center; 
+   
+}
+
+.left-column label{
+    font-size: 25px;
+    font-weight: bold;
+}
+.label-select-pair {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ensures proper spacing */
+    width: 70%;
+    height: 10%;
+    margin-top: 2%;
+}
+
+.label-select-pair label {
+    text-align: right; /* Align text in the label to the right */
+    flex: 1; /* Take up space to push the select to the right */
+}
+
+.label-select-pair select {
+    flex: 1; /* Allow some flexibility */
+    width: auto;
+    height: 80%;
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 20px; /* Adds space between the label and select */
+}
+
+#cancel_btn{
+    height: 100%;
+    width: 25%;
+    background-color:orange;
+    font-weight: bold;
+    font-size: 18px;
+    color: black;
+}
+
+#submit_btn{
+    height: 100%;
+    width: 25%;
+    background-color:green;
+    font-weight: bold;
+    font-size: 18px;
+    color: white;
+}
+.right-column {
+    width: 50%; /* Ensures two equal halves with a small gap */
+    height: 100%; /* Matches the height of the parent container */
+    border: 1px solid gray; /* Optional: Adds border to distinguish columns */
+    display: flex;
+    justify-content: center; /* Centers content horizontally in each column */
+    align-items: center; /* Centers content vertically in each column */
+    
+}
+#output_result{
+    height: 90%;
+    width: 90%;
+    background-color: rgb(241, 179, 241);
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.sub-container.active {
+    display: flex; /* Shows only the active sub-container */
+}
+
+.sub-container-2 .sub-container {
+    display: flex; /* Enable flexbox for equal division */
+    justify-content: space-between; /* Distribute space evenly */
+    align-items: center; /* Center items vertically */
+    height: 100%; /* Full height */
+
+    display: flex;
+    justify-content: center; /* Centers the content horizontally */
+    align-items: center; /* Centers the content vertically */
+    flex-direction: column; /* Stacks children vertically */
+    height: 100%; /* Full height of the container */
+    gap: 20px; /* Adds space between elements */
+}
+
+.left_container{
+    width: 25%; 
+    height: 100%; 
+    border: 1px solid gray; 
+    display: flex;
+    flex-direction: column;
+    gap: 10px; 
+    /* justify-content: center;  */
+    align-items: center; 
+   
+}
+
+.right_container {
+    width: 75%; 
+    height: 100%; 
+    border: 1px solid gray; 
+    display: flex;
+    flex-direction: column;
+    gap: 10px; 
+    /* justify-content: center;  */
+    align-items: center; 
+   
+}
+
+.table {
+    width: 90%; 
+    height: auto;
+    border-collapse: collapse;
+    margin: 10px 0;
+    border: 1px solid black;
+    text-align: center;
+}
+.table tfoot{
+    height:50px;
+}
+.table th, .table td {
+    border: 1px solid black;
+    padding: 5px;
+    
+}
+
+.hidden {
+    display: none;
+}
+
+.toggle-btn {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: 1px solid black;
+    background-color:purple ;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    height: 10%;
+    width: 80%;
+    font-weight: bold;
+    font-size: 25px;
+    color: white;
+    margin-top: 2%;
+}
+
+.toggle-btn:hover {
+    background-color: rgb(246, 122, 246);
+}
+
+.no-outline{
+        border: none;
+        outline: none;
+    }
+    .custom-row {
+    height: 50px; /* Adjust as needed */
+   
+}
+
+
+#table1 input,#table5 input {
+    font-size: 20px; /* Adjust size as needed */
+    text-align: center;
+    font-weight: bold;
+}
+.button_container{
+    width: 100%;
+    height: 50px;
+}
+
+.button_container2{
+    width: 100%;
+    height:10%;
+    justify-content: center; 
+    align-items: center; 
+    margin-top: 2%;
+}
+
+#add_new_btn , #save_btn ,#delete_btn{
+    height: 100%;
+    width: 15%;
+    font-weight: bold;
+    font-size: 18px;
+}
+#add_new_btn {
+    background-color: orange;
+}
+#save_btn{
+    background-color: green;
+}
+#delete_btn{
+    background-color: red;
+}
+#table2{
+    height: 100%;
+    width: 100%;
+}
+
+    .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%; /* Adjust as needed */
+    max-width: 800px; /* Adjust for container width */
+    margin: 0 auto;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    width: 100%;
+}
+
+.form-label {
+    font-weight: bold;
+    font-size: 22px; /* Adjust size */
+    text-align: left;
+    width: 40%; /* Adjust label width */
+}
+
+.colon {
+    font-weight: bold;
+    font-size: 20px; /* Match label size */
+    text-align: center;
+    width: 5%; /* Adjust colon width */
+}
+
+.form-input {
+    flex-grow: 1;
+    font-size: 20px; /* Match label size */
+    padding: 5px;
+    width: 55%; /* Adjust input width */
+}
+
+#shift_output{
+    height: 30%;
+    width: 50%;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: left;
+    margin-top: 2%;
+}
+
+#cancel-btn,#save-btn-2,#ping_btn,#edit-btn{
+    height: 50px;
+    width: 15%;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+#cancel-btn {
+    background-color: red;
+}
+#save-btn-2{
+    background-color: green;
+}
+#ping_btn{
+    background-color: green;
+}
+#edit-btn{
+    background-color: orange;
+}
+</style>
+<div class="container-1">
+    
+    <div class="container-1-1">
+        <label>GENERAL SETTINGS</label>
+        <button type="button" id="close_btn">
+            <i class="fas fa-times" id="close_icon"></i>
+        </button>
+    </div>
+    <div class="container-1-2">
+        <button onclick="showSubContainer(1)">COMPORT SETTINGS</button>
+        <button onclick="showSubContainer(2)">OPERATOR SETTINGS</button>
+        <button onclick="showSubContainer(3)">CNC SETTINGS</button>
+    </div>
+</div>
+
+
+<div class="container-2">
+    <div class="container-2-1">
+        <div class="sub-container-1 sub-container">
+            <div class="left-column">
+                <div class="label-select-pair">
+                    <label for="comport">COMPORT :</label>
+                    <select id="comport">
+                       
+                    </select>
+                </div>
+
+                <div class="label-select-pair">
+                    <label for="baud_rate">BAUD RATE :</label>
+                    <select id="baud_rate">
+                        <option value="1">9600</option>
+                        <option value="2">19200</option>
+                        
+                    </select>
+                </div>
+
+                <div class="label-select-pair">
+                    <label for="parity">PARITY :</label>
+                    <select id="parity">
+                        <option value="1">NONE</option>
+                        <option value="2">EVEN</option>
+                        <option value="3">ODD</option>
+                        <option value="4">MARK</option>
+                        <option value="5">SPACE</option>
+                    </select>
+                </div>
+
+                <div class="label-select-pair">
+                    <label for="stop_bit">STOP BIT :</label>
+                    <select id="stop_bit">
+                        <option value="1">1</option>
+                        <option value="2">1.5</option>
+                        <option value="3">2</option>
+                    </select>
+                </div>
+
+                <div class="label-select-pair">
+                    <label for="data_bit">DATA BIT :</label>
+                    <select id="data_bit">
+                        <option value="1">4</option>
+                        <option value="2">5</option>
+                        <option value="3">6</option>
+                        <option value="4">7</option>
+                    </select>
+                </div>
+                <div class="label-select-pair">
+                <button type="submit" id="cancel_btn">CANCEL</button>
+                <button type="submit" id="submit_btn">OK</button>
+            </div>
+
+
+            </div>
+            <div class="right-column">
+                <textarea id="output_result"></textarea>
+            </div>
+        </div>
+        
+        <div class="sub-container-2 sub-container">
+            <div class="left_container">
+                <button id="operators" class="toggle-btn">OPERATORS</button>
+                <button id="shift_settings" class="toggle-btn">SHIFT SETTINGS</button>
+                <button id="backup" class="toggle-btn">BACKUP</button>
+            </div>
+            <div class="right_container">
+                <table id="table1" class="table hidden">
+                    <thead>
+                        <tr class="custom-row">
+                            <th style="width: 5%;">Sr.No</th>
+                            <th id="oper_no">OPERATOR NO</th>
+                            <th id="oper_name">OPERATOR NAME</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody-1">
+                        <tr class="custom-row">
+                            <td>{{ forloop.counter }}</td>
+                            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+                            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" style="text-align: center;" class="button_container">
+                                <button onclick="addRow('item-3', 3)" id="add_new_btn">ADD NEW</button>
+                                <button id="save_btn">SAVE</button>
+                                <button id="delete_btn">DELETE</button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            
+                <div id="table2" class="table hidden">
+                    <center style="color: purple; text-shadow: 2px 2px 4px rgb(240, 118, 240);">
+                        <h1><b>SHIFT SETTINGS</b></h1>
+                    </center>
+                    
+                        <div class="form-container">
+                            <div class="form-row">
+                                <label for="shift" class="form-label">SHIFT</label>
+                                <span class="colon">:</span>
+                                <input type="text" id="shift" name="shift" value="SHIFT-" class="form-input">
+                            </div>
+                            <div class="form-row">
+                                <label for="shift_time" class="form-label">START TIME</label>
+                                <span class="colon">:</span>
+                                <input type="time" id="shift_time" name="shift_time" step="1" class="form-input">
+                            </div>
+                        </div>
+                        
+                        <textarea  id="shift_output">
+                            
+                        </textarea>
+                    <div class="button_container2">
+                    <a >
+                        <button type="button" id="cancel-btn"><b>Cancel</b></button>
+                    </a>
+                    <button type="button" id="save-btn-2"><b>Save</b></button>  
+                    </div>
+                
+                </div>
+            
+                <div id="table3" class="table hidden">
+                    <h3>Container 3 Header</h3>
+                    <p>This is container 3 content.</p>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="sub-container-3 sub-container">
+            <div class="left_container">
+                <button id="cnc_settings" class="toggle-btn">CNC SETTINGS</button>
+                <button id="offset" class="toggle-btn">OFFSET</button>
+                <button id="cnc_ip" class="toggle-btn">CNC MACHINE IP</button>
+            </div>
+            <div class="right_container">
+               
+                <div id="table4" class="table hidden" style="height: 100%;width: 100%;">
+                    <center style="color: purple; text-shadow: 2px 2px 4px rgb(240, 118, 240);">
+                        <h1><b>CNC SETTINGS</b></h1>
+                    </center>
+                    
+                        <div class="form-container">
+                            <div class="form-row">
+                                <label for="cnc_machine_ip" class="form-label">CNC MACHINE IP</label>
+                                <span class="colon">:</span>
+                                <input type="text" id="cnc_machine_ip" name="cnc_machine_ip"  class="form-input">
+                            </div>
+                            <div class="form-row">
+                                <label for="cnc_machine_port" class="form-label">CNC MACHINE PORT</label>
+                                <span class="colon">:</span>
+                                <input type="text" id="cnc_machine_port" name="cnc_machine_port" step="1" class="form-input">
+                            </div>
+                        </div>
+                        
+                        <textarea  id="shift_output">
+                            
+                        </textarea>
+                    <div class="button_container2">
+                    
+                    <button type="button" id="cancel-btn"><b>CANCEL</b></button>
+                    <button type="button" id="edit-btn"><b>EDIT</b></button>
+                    <button type="button" id="ping_btn"><b>PING</b></button>  
+                    </div>
+                
+                
+                </div>
+                <div id="table5" class="table hidden" style="width: 100%;">
+                    <table style="border-collapse: collapse; width: 100%; border: 1px solid black;">
+                        <thead style="background-color: gray;">
+                            <tr class="custom-row">
+                                <th style="width: 5%;">SR NO</th>
+                                <th style="width: 30%;">SPEC</th>
+                                <th style="width: 15%;">CHANNEL 1</th>
+                                <th style="width: 15%;">CHANNEL 2</th>
+                                <th style="width: 15%;">CHANNEL 3</th>
+                                <th style="width: 15%;">CHANNEL 4</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody-2">
+
+                        </tbody>
+                    </table>
+                    <div class="button_container2">
+                    
+                        <button type="button" id="cancel-btn"><b>CANCEL</b></button>
+                        <button type="button" id="edit-btn"><b>EDIT</b></button>
+                        <button type="button" id="save-btn-2"><b>SAVE</b></button>  
+                    </div>
+                </div>
+                
+
+                <div id="table6" class="table hidden" style="width: 100%;">
+                    <table style="border-collapse: collapse; width: 100%; border: 1px solid black;">
+                        <thead style="background-color: gray;">
+                            <tr class="custom-row">
+                                <th style="width: 5%;">SR NO</th>
+                                <th style="width: 30%;">CNC MACHINE IP</th>
+                                <th style="width: 15%;">CHANNEL 1</th>
+                                <th style="width: 15%;">CHANNEL 2</th>
+                                <th style="width: 15%;">CHANNEL 3</th>
+                                <th style="width: 15%;">CHANNEL 4</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody-3">
+
+                        </tbody>
+                    </table>
+                    <div class="button_container2">
+                    
+                        <button type="button" id="cancel-btn"><b>CANCEL</b></button>
+                        <button type="button" id="edit-btn"><b>EDIT</b></button>
+                        <button type="button" id="save-btn-2"><b>SAVE</b></button>  
+                    </div>
+                </div>
+            </div>
+            
+               
+           
+        </div>
+    </div>
+    
+</div>
+
+<script>
+   function showSubContainer(index) {
+    // Hide all sub-containers
+    const subContainers = document.querySelectorAll('.sub-container');
+    subContainers.forEach(container => container.classList.remove('active'));
+
+    // Show the selected sub-container
+    const selectedContainer = document.querySelector(`.sub-container-${index}`);
+    if (selectedContainer) {
+        selectedContainer.classList.add('active');
+    }
+}
+
+// Ensure .sub-container-1 is active initially
+document.addEventListener('DOMContentLoaded', () => {
+    const initialContainer = document.querySelector('.sub-container-1');
+    if (initialContainer) {
+        initialContainer.classList.add('active');
+    }
+});
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.toggle-btn');
+    const containers = document.querySelectorAll('.table');
+
+    // Ensure table1 and table4 are visible initially
+    const initialTables = ['table1', 'table4'];
+    initialTables.forEach(tableId => {
+        const table = document.getElementById(tableId);
+        if (table) {
+            table.classList.remove('hidden');
+        }
+    });
+
+    buttons.forEach((button, index) => {
+        button.addEventListener('click', () => {
+            // Hide all containers
+            containers.forEach(container => container.classList.add('hidden'));
+            // Show the corresponding container
+            const target = document.getElementById(`table${index + 1}`);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+        });
+    });
+});
+
+
+ // JavaScript to add 5 rows with SPEC names
+    const tableBody = document.getElementById('tableBody-2');
+
+    // List of SPEC names
+    const specNames = [
+    "TOOL NO",
+"TOOL AXIS",
+"UPPER WEAR OFFSET LIMIT ",
+"LOWER WEAR OFFSET LIMIT ",
+"NEW OFFSET ",
+"OFFSET OFFSET" ,
+    ];
+
+    // Loop through the spec names and create rows
+    specNames.forEach((spec, index) => {
+        const row = document.createElement('tr');
+        row.className = 'custom-row';
+
+        // Create the cells for each row
+        row.innerHTML = `
+            <td style="border: 1px solid black;">${index + 1}</td>
+            <td style="border: 1px solid black;">${spec}</td>
+            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+        `;
+
+        // Append the row to the table body
+        tableBody.appendChild(row);
+    });
+
+
+    // JavaScript to add 5 rows with SPEC names
+    const tableBody3 = document.getElementById('tableBody-3');
+
+    // List of SPEC names
+    const CNC_IP = [
+    "CNC MACHINE PORT",
+"CNC TIME OUT",
+"TOOL AXIS ",
+"TOOL NO ",
+"OFFSET ",
+"PART COUNT" ,
+"CNC LEAST COUNT"
+    ];
+
+    // Loop through the spec names and create rows
+    CNC_IP.forEach((spec, index) => {
+        const row = document.createElement('tr');
+        row.className = 'custom-row';
+
+        // Create the cells for each row
+        row.innerHTML = `
+            <td style="border: 1px solid black;">${index + 1}</td>
+            <td style="border: 1px solid black;">${spec}</td>
+            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+        `;
+
+        // Append the row to the table body
+        tableBody3.appendChild(row);
+    });
+    </script>
+    
+</body>
+</html>
