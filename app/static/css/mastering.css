@@ -26,26 +26,48 @@ body {
 }  
 #clock-box{
     width: 30%; 
-    height: 100%; 
+    height: 100%;
     box-sizing: border-box; 
     font-weight: bold;
-   font-size: 30px;
-   text-align: center;
-}
-
-#close_btn {
-   margin-left:60% ;
-    background-color: #ff4c4c; 
-    border: none;
-    border-radius: 5px;
-    width: 5%;
-    height: 100%;
-   
-}
-
-#close_icon {
     font-size: 30px;
-    color: white; 
+    text-align: center;
+}
+
+/* Style for the button */
+#close_btn {
+    display: inline-block;
+    background: linear-gradient(145deg, #f10404, #f50505); /* Creates a gradient for the 3D look */
+    border: 1px solid gray;
+    border-radius: 12px; /* Smooth rounded corners */
+    padding: 10px 15px;
+    cursor: pointer;
+    height: 100%;
+    width: 5%;
+    margin-left: 60%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Adds smooth hover effects */
+}
+
+/* Style for the icon */
+#close_icon {
+    font-size: 20px; /* Adjust the icon size */
+    color: white; /* Set the icon color */
+    transition: transform 0.2s ease; /* Adds hover animation for the icon */
+}
+
+/* Hover effect for the button */
+#close_btn:hover {
+    background: linear-gradient(45deg, red, rgb(141, 8, 8));
+    transform: translateY(-3px); /* Moves the button slightly upward */
+}
+
+/* Active (pressed) effect for the button */
+#close_btn:active {
+    transform: translateY(2px); /* Moves the button slightly downward */
+}
+
+/* Hover effect for the icon */
+#close_icon:hover {
+    transform: scale(1.2); /* Enlarges the icon slightly on hover */
 }
 
 .container_2 {
@@ -55,6 +77,7 @@ body {
     border: 1px solid black;
     display: flex;
 } 
+
 .sub_container_2{
     height: 100%;
     width: 25%;
@@ -65,6 +88,7 @@ body {
     align-items: center;   /* Center horizontally */
     position: relative; /* Required for absolute positioning adjustments */
 }
+
 .sub_container_2 label{
     font-weight: bold;
     font-size: 30px;
@@ -79,7 +103,17 @@ body {
 #partModel{
     width: 80%;
     height: 50%;
+    font-size: 35px;
+    text-align: center;
+    font-weight: bold;
 }
+
+.probe-container {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Add space between the elements */
+}
+    
 input[type="radio"] {
     transform: scale(1.5); /* Adjust the scale value to increase size */
     
@@ -88,7 +122,7 @@ input[type="radio"] {
     width: 30%;
     height: 50%;
 }
-.sub_container_2 button{
+.sub_container_2 button {
     height: 40%;
     width: 80%;
     margin-top: 1%;
@@ -97,16 +131,33 @@ input[type="radio"] {
     text-align: center;
     background-color: blue;
     color: white;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3), 0px -2px 6px rgba(255, 255, 255, 0.1) inset;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
 }
+
+.sub_container_2 button:active {
+    box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.4) inset, 0px -2px 6px rgba(255, 255, 255, 0.1) inset;
+    transform: translateY(2px);
+}
+
+.sub_container_2 button:hover {
+    background: linear-gradient(45deg, blue, rgb(4, 28, 100));
+    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.4), 0px -2px 8px rgba(255, 255, 255, 0.2) inset;
+    transform: scale(1.05);
+}
+
 .container_3{
-    height: 25%;
+    height: 23%;
     width: 100%;
     border: 1px solid black;
 }
 #pre{
     height: 90%;
     width: 100%;
-    background-color: rgb(246, 182, 62);
+    background-color: yellow;
     text-align: center;
     font-weight: bold;
     font-size: 30px; 
@@ -150,6 +201,7 @@ input[type="radio"] {
     gap: 10px;
     width: 100%;
     flex-grow: 1;
+    margin-top: 3%;
 }
 
 /* Individual Grid Items */
@@ -166,7 +218,7 @@ input[type="radio"] {
     margin-top: 3%;
     margin-bottom: 5px; /* Space between label and input */
     font-weight: bold; /* Make label text bold */
-    font-size: 17px;
+    font-size: 16px;
     text-align: center; /* Center align the label text */
 }
 
@@ -179,7 +231,7 @@ input[type="radio"] {
 
 /* Center Input Box */
 .center-box {
-    margin-top: 1%;
+    margin-top: 3%;
    font-weight: bold;
    font-size: 40px;
    text-align: center;
@@ -207,14 +259,48 @@ input[type="radio"] {
     border: 1px solid black;
     background-color: beige;
 }
-#measureBtn{
+#measureBtn {
     height: 60%;
-    width: 15%;
+    width: 20%;
     margin-top: 1%;
     margin-left: 75%;
-    border: 1px solid black;
+    border: none; /* Remove the black border for a cleaner look */
     background-color: red;
     color: white;
     font-weight: bold;
     font-size: 25px;
+    border-radius: 10px; /* Add rounded corners */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3), 0px -2px 6px rgba(255, 255, 255, 0.1) inset;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    text-align: center;
+}
+
+#measureBtn:hover {
+    background: linear-gradient(45deg, red, darkred);
+    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.4), 0px -2px 8px rgba(255, 255, 255, 0.2) inset;
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+#measureBtn:active {
+    box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.4) inset, 0px -2px 6px rgba(255, 255, 255, 0.1) inset;
+    transform: translateY(2px); /* Button depress effect */
+}
+
+
+#customAlert{
+    display: none;
+    position: fixed; 
+    top: 20px;
+    width: 500px;
+    height: 100px;
+    left: 50%;
+    text-align: center;
+    font-weight: bold;
+    transform: translateX(-50%);
+    background-color: yellow; 
+    color: black; 
+    border: 1px solid black ; 
+    padding: 10px;
+    z-index: 1000;
 }

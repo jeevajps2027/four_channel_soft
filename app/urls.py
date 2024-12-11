@@ -9,7 +9,7 @@ urlpatterns = [
     path('master/',master,name="master"),
     path('parameter/',parameter,name="parameter"),
     path('report/',report,name="report"),
-    path('settings/',gen_setting,name="gen_setting"),
+    path('gen_setting/',gen_setting,name="gen_setting"),
     ]
 
 if settings.DEBUG:

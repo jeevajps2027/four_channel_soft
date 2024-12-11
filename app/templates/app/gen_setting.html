@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Report</title>  
 </head>
 <body>
@@ -325,7 +325,7 @@ body {
     margin-top: 2%;
 }
 
-#add_new_btn , #save_btn ,#delete_btn{
+#add_new_btn , #save_btn_cus ,#delete_btn{
     height: 100%;
     width: 15%;
     font-weight: bold;
@@ -334,7 +334,7 @@ body {
 #add_new_btn {
     background-color: orange;
 }
-#save_btn{
+#save_btn_cus{
     background-color: green;
 }
 #delete_btn{
@@ -392,7 +392,7 @@ body {
     margin-top: 2%;
 }
 
-#cancel-btn,#save-btn-2,#ping_btn,#edit-btn{
+#cancel-btn,#save_btn_shift,#ping_btn,#edit-btn{
     height: 50px;
     width: 15%;
     font-weight: bold;
@@ -402,7 +402,7 @@ body {
 #cancel-btn {
     background-color: red;
 }
-#save-btn-2{
+#save_btn_shift{
     background-color: green;
 }
 #ping_btn{
@@ -495,7 +495,7 @@ body {
                 <button id="shift_settings" class="toggle-btn">SHIFT SETTINGS</button>
                 <button id="backup" class="toggle-btn">BACKUP</button>
             </div>
-            <div class="right_container">
+            <div class="right_container" style="overflow-y: auto;">
                 <table id="table1" class="table hidden">
                     <thead>
                         <tr class="custom-row">
@@ -505,17 +505,19 @@ body {
                         </tr>
                     </thead>
                     <tbody id="tableBody-1">
+                        {% for operator in operators_value %}
                         <tr class="custom-row">
-                            <td>{{ forloop.counter }}</td>
-                            <td><input type="text" class="no-outline" style="width: 100%;"></td>
-                            <td><input type="text" class="no-outline" style="width: 100%;"></td>
+                            <td>{{ forloop.counter }}</td>  <!-- Display row number -->
+                            <td><input type="text" class="no-outline" style="width: 100%;" value="{{ operator.operator_no }}"></td>
+                            <td><input type="text" class="no-outline" style="width: 100%;" value="{{ operator.operator_name }}"></td>
                         </tr>
+                        {% endfor %}
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="3" style="text-align: center;" class="button_container">
-                                <button onclick="addRow('item-3', 3)" id="add_new_btn">ADD NEW</button>
-                                <button id="save_btn">SAVE</button>
+                                <button onclick="addRow()" id="add_new_btn">ADD NEW</button>
+                                <button onclick="saveData()" id="save_btn_cus">SAVE</button>
                                 <button id="delete_btn">DELETE</button>
                             </td>
                         </tr>
@@ -547,7 +549,7 @@ body {
                     <a >
                         <button type="button" id="cancel-btn"><b>Cancel</b></button>
                     </a>
-                    <button type="button" id="save-btn-2"><b>Save</b></button>  
+                    <button type="button" id="save_btn_shift"><b>Save</b></button>  
                     </div>
                 
                 </div>
@@ -770,6 +772,72 @@ document.addEventListener('DOMContentLoaded', () => {
         // Append the row to the table body
         tableBody3.appendChild(row);
     });
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// operator js code
+
+    function addRow() {
+    const tableBody = document.getElementById("tableBody-1");
+
+    // Get the current number of rows
+    const rowCount = tableBody.getElementsByTagName("tr").length;
+
+    // Create a new row
+    const newRow = document.createElement("tr");
+    newRow.classList.add("custom-row");
+
+    // Create and append cells to the new row
+    newRow.innerHTML = `
+        <td>${rowCount + 1}</td>
+        <td><input type="text" class="no-outline" style="width: 100%;"></td>
+        <td><input type="text" class="no-outline" style="width: 100%;"></td>
+    `;
+
+    // Append the new row to the table body
+    tableBody.appendChild(newRow);
+}
+
+function saveData() {
+        const rows = document.querySelectorAll("#tableBody-1 tr");
+        const data = Array.from(rows).map(row => {
+            const inputs = row.querySelectorAll("input");
+            return {
+                operator_no: inputs[0].value,
+                operator_name: inputs[1].value
+            };
+        });
+
+        // Log the data that will be sent to the backend
+        console.log("Data being sent to the backend:", data);
+
+        $.ajax({
+            url: "/gen_setting/",
+            type: "POST",
+            headers: {
+                "X-CSRFToken": getCSRFToken() // CSRF token for Django
+            },
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function (response) {
+                console.log("Data saved successfully:", response);
+                alert("Data saved successfully!");
+            },
+            error: function (xhr, status, error) {
+                console.error("Error saving data:", xhr.responseText);
+                alert("An error occurred while saving the data.");
+            }
+        });
+    }
+
+    function getCSRFToken() {
+        const cookies = document.cookie.split("; ");
+        for (let cookie of cookies) {
+            const [name, value] = cookie.split("=");
+            if (name === "csrftoken") return value;
+        }
+        return "";
+    }
     </script>
     
 </body>

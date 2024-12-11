@@ -25,8 +25,34 @@ class paraTableData(models.Model):
     ltl = models.CharField(max_length=100, blank=True)
     utl = models.CharField(max_length=100, blank=True)
     step_no = models.CharField(max_length=10, blank=True)
+    auto_man = models.BooleanField(default=False)
+    timer = models.CharField(max_length=100, blank=True)
     digits = models.CharField(max_length=10, blank=True)
     id_od = models.CharField(max_length=10, blank=True)
 
     def __str__(self):
         return f"TableData for {self.parameter_name} ({self.sr_no})"
+    
+
+class Operator_setting(models.Model):
+    operator_no = models.CharField(max_length=10)
+    operator_name = models.CharField(max_length=100)
+
+
+class master_data(models.Model):
+    a = models.FloatField()
+    a1 = models.IntegerField()
+    b = models.FloatField()
+    b1 = models.IntegerField()
+    e = models.CharField(max_length=10)
+    d = models.FloatField()
+    o1 = models.FloatField()
+    parameter_name = models.CharField(max_length=100)
+    part_model = models.CharField(max_length=100)
+    date_time = models.DateTimeField()
+    mastering = models.CharField(max_length=10)
+    probe_number = models.IntegerField()  # Add probeNumber as a field
+
+
+    def __str__(self):
+        return f"{self.parameter_name} - {self.part_model}"

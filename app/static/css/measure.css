@@ -94,7 +94,7 @@ body {
     font-weight: bold;
     font-size: 20px;
 }
-#part_name{
+#part_model{
     width: 25%;
     font-weight: bold;
     font-size: 35px;
@@ -182,11 +182,11 @@ body {
 
 .input-box {
     width: 100%;  /* Make the input box 100% of the container width */
-    height: 10%;  /* Set the height of the input box to 10% of the container */
+    height: 8%;  /* Set the height of the input box to 10% of the container */
     box-sizing: border-box; /* Ensure padding doesn't increase the overall width/height */
    text-align: center;
    font-weight: bold;
-   font-size: 35px;
+   font-size: 25px;
 }
 
 canvas {
@@ -209,22 +209,38 @@ canvas {
     flex: 1;
     text-align: center;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 25px;
 }
 
 .input-row {
     display: flex;
     width: 100%;
-    margin-bottom: 20px;
+    height: 10%;
 }
 
 .input-box1 {
     width: 30%;
-    height: 100%;
+    height: 70%;
     padding: 5px;
     text-align: center;
     font-weight: bold;
     font-size: 25px;
+}
+
+.input-row-top {
+    display: flex;
+    width: 100%;
+    height: 7%;
+}
+
+.input-box1-top {
+    width: 30%;
+    height: 50%;
+    padding: 5px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+    background-color: rgb(209, 207, 207);
 }
 
 
