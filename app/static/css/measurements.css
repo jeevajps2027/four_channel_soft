@@ -190,8 +190,8 @@ body {
 }
 
 canvas {
-    width: 90%;  /* Optional: Ensure the canvas takes the full available width */
-   height: 70%;
+    width: 95%;  /* Optional: Ensure the canvas takes the full available width */
+   height: 80%;
     background-color: antiquewhite;
     border-radius: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
@@ -201,15 +201,14 @@ canvas {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    margin-bottom: 10px;
-    margin-top: 2%;
+    margin-top: 1%;
 }
 
 .label-row label {
     flex: 1;
     text-align: center;
     font-weight: bold;
-    font-size: 25px;
+    font-size: 18px;
 }
 
 .input-row {
@@ -220,7 +219,7 @@ canvas {
 
 .input-box1 {
     width: 30%;
-    height: 70%;
+    height: 65%;
     padding: 5px;
     text-align: center;
     font-weight: bold;
@@ -280,7 +279,7 @@ canvas {
 }
 
 
-#start_stop_btn{
+.toggle-btn{
     height: 100%;
     width: 10%;
     margin-left:5%;
@@ -304,4 +303,11 @@ canvas {
     font-family:'Courier New', Courier, monospace;
     background-color: orangered;
    
+}
+
+
+.probe-container {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Add space between the elements */
 }

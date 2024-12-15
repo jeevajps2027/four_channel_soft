@@ -89,6 +89,21 @@ body {
     position: relative; /* Required for absolute positioning adjustments */
 }
 
+.sub_container_2:hover{
+    background: linear-gradient(45deg, rgb(11, 94, 247),rgb(192, 211, 247), rgb(13, 94, 245));
+    transform: translateX(2px); /* Moves the button slightly downward */
+}
+
+#cal_container1, #cal_container2, #cal_container3, #cal_container4 /* Add more as needed */ {
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+/* Hover gradient effect for selected container */
+.hover-gradient:hover {
+    background: linear-gradient(45deg, rgb(253, 165, 1), rgb(73, 219, 245), rgb(253, 165, 2));
+    transform: translateX(2px); /* Moves the button slightly downward */
+}
+
 .sub_container_2 label{
     font-weight: bold;
     font-size: 30px;

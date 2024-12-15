@@ -44,7 +44,7 @@
                 <label for="mastering" >MASTERING GROUP:</label>
                 <select id="mastering" class="mastering_no" name="mastering">
                     <script>
-                        for (var i = 1; i <= 10; i++) {
+                        for (var i = 1; i <= 4; i++) {
                             document.write('<option value="' + i + '">' + i + '</option>');
                         }
                     </script>
@@ -191,6 +191,18 @@
 
 <script>
 
+
+document.addEventListener("DOMContentLoaded", () => {
+            const redirectToMeasurement = () => {
+                // Redirect to the measurement page
+                window.location.href = "/measurement/";
+            };
+
+            // Attach click event listeners to both buttons
+            document.getElementById("close_btn").addEventListener("click", redirectToMeasurement);
+            document.getElementById("measureBtn").addEventListener("click", redirectToMeasurement);
+        });
+
     function updateClock() {
     // Get the current date and time
     var currentDate = new Date();
@@ -326,6 +338,59 @@ function logSelectedValue() {
 
     // Function to fetch and display values
 
+
+
+    function calculateAndUpdateDisplayOutput(index, textareaValue, parameterValues, lowMaster, highMaster, lsl, usl, ltl, utl, probeNumber, parameterNames) {
+    const textareaId = mapProbeToTextareaId(probeNumber); // Get the textarea ID using probeNumber
+    const textarea = document.getElementById(textareaId);
+
+    // Use the parameterNames passed in the function
+    const matchingParameter = parameterValues.find(param => param.parameter_name === parameterNames[index]);
+
+    if (matchingParameter) {
+        const e = parseFloat(matchingParameter.e);
+        const d = parseFloat(matchingParameter.d);
+        const o1 = parseFloat(matchingParameter.o1);
+
+        // Ensure valid number values
+        if (isNaN(e) || isNaN(d) || isNaN(o1)) {
+            console.error(`Invalid values for e, d, or o1 at index ${index}`);
+            return;
+        }
+
+        // If textarea value is empty or not a valid number, assume it as 0
+        const newSerialData = (textarea && !isNaN(parseFloat(textarea.value))) ? parseFloat(textarea.value) : 0;
+
+        // Perform the calculation
+        const displayOutput = e + (newSerialData * d + o1);
+
+        if (!isNaN(displayOutput)) {
+            console.log(`Calculated displayOutput for index ${index}:`, displayOutput);
+
+            // Update the corresponding output input field
+            const outputInput = document.getElementById(`center_input${index + 1}`);
+            if (outputInput) {
+                outputInput.value = displayOutput.toFixed(2);
+            }
+
+            // Update background color based on the output
+            if (displayOutput >= lsl[index] && displayOutput <= usl[index]) {
+                outputInput.style.backgroundColor = '#00ff00'; // Green
+            } else if ((displayOutput > usl[index] && displayOutput <= utl[index]) || 
+                       (displayOutput >= ltl[index] && displayOutput < lsl[index])) {
+                outputInput.style.backgroundColor = 'yellow';
+            } else if (displayOutput > utl[index] || displayOutput < ltl[index]) {
+                outputInput.style.backgroundColor = 'red';
+            }
+        }
+    }
+}
+
+
+
+
+
+
 function fetchAndDisplayValues(selectedValue) {
     const partName = $("#partModel").val();
 
@@ -336,10 +401,15 @@ function fetchAndDisplayValues(selectedValue) {
         headers: { "X-CSRFToken": "{{ csrf_token }}" }, // Include CSRF token
         data: { part_name: partName },
         success: function (response) {
+
+            const parameterValues = response.parameter_values;
+            console.log('your parameterValues from backend to receive this:', parameterValues);
+
             window.fetchedResponse = response;
             console.log("Part name sent successfully to the backend.", response);
+
             // Extracting values from the response
-            const parameterNames = response.parameter_names;
+            const parameterNames = response.parameter_names;  // This is an array with parameter names
             const lowmaster = response.low_masters;
             const highmaster = response.high_masters;
             const probe_number = response.probe_number;
@@ -362,7 +432,6 @@ function fetchAndDisplayValues(selectedValue) {
 
                 // Find the corresponding textarea ID using the correct function
                 const textareaId = mapProbeToTextareaId(probeNumber);
-
                 console.log('Your textarea id for this container:', textareaId);
 
                 // Dynamically update the input fields for the corresponding container index
@@ -383,21 +452,52 @@ function fetchAndDisplayValues(selectedValue) {
                 }
 
                 // Remove background color from all containers before applying new one
-                const container = document.getElementById(`cal_container${index + 1}`);
+                // Get the mastering select value
                 const masteringSelect = document.getElementById("mastering");
                 const selectedMasteringValue = masteringSelect.value;
-                if (container) {
-                    container.style.backgroundColor = ''; // Reset background color
-                }
 
-                // Apply background color only for the container matching the selected mastering group
-                if (step_no[index] === selectedMasteringValue) {
+                // Loop through all containers and apply styles
+                step_no.forEach((step, index) => {
                     const container = document.getElementById(`cal_container${index + 1}`);
                     if (container) {
-                        container.style.backgroundColor = 'orange'; // Apply background color
+                        // Reset all containers to default state
+                        container.style.backgroundColor = ''; // Reset background color
+                        container.classList.remove("hover-gradient", "disabled"); // Remove classes
+                        container.style.pointerEvents = "auto"; // Enable pointer events
+                        container.style.opacity = "1"; // Reset opacity
                     }
+
+                    // Apply styles only for the container matching the selected mastering group
+                    if (step === selectedMasteringValue) {
+                        if (container) {
+                            container.style.backgroundColor = 'orange'; // Apply background color
+                            container.classList.add("hover-gradient"); // Add hover gradient class
+                        }
+                    } else {
+                        // Disable other containers
+                        if (container) {
+                            container.style.pointerEvents = "none"; // Disable pointer events
+                            container.style.opacity = "0.5"; // Reduce opacity to show inactive state
+                            container.classList.add("disabled"); // Add disabled class
+                        }
+                    }
+                });
+
+                const textarea = document.getElementById(textareaId);
+                if (textarea) {
+                    textarea.addEventListener('input', function () {
+                        // Get the value of the textarea and treat it as 0 if empty or invalid
+                        const textareaValue = (textarea.value.trim() === '' || isNaN(parseFloat(textarea.value))) ? 0 : parseFloat(textarea.value);
+                        
+                        // Pass the specific probe_number, parameterNames, and other necessary values
+                        calculateAndUpdateDisplayOutput(index, textareaValue, parameterValues, lowmaster[index], highmaster[index], lsl, usl, ltl, utl, probeNumber, parameterNames);
+                    });
                 }
 
+                // Call the function to calculate and update the display output on page load
+                const initialTextareaValue = textarea ? textarea.value : '';
+                const initialValue = (initialTextareaValue.trim() === '' || isNaN(parseFloat(initialTextareaValue))) ? 0 : parseFloat(initialTextareaValue);
+                calculateAndUpdateDisplayOutput(index, initialValue, parameterValues, lowmaster[index], highmaster[index], lsl, usl, ltl, utl, probeNumber, parameterNames);
             });
         },
         error: function (error) {
@@ -456,6 +556,8 @@ document.getElementById("lowMasterBtn").addEventListener("click", function () {
                     lowRawMasterInput.value = a1;
                 }
 
+                
+
                 const preInput = document.getElementById('pre');
                 preInput.value = "LOW MASTERING IS STARTED FOR ALL PARAMETER";
             }
@@ -495,6 +597,7 @@ document.getElementById("lowMasterBtn").addEventListener("click", function () {
             if (lowRawMasterInput) {
                 lowRawMasterInput.value = a1;
             }
+
 
             const preInput = document.getElementById('pre');
             preInput.value = `LOW MASTERING IS STARTEDFOR PARAMETRWISE `;
@@ -619,7 +722,7 @@ document.getElementById("highMasterBtn").addEventListener("click", function () {
 
             const nominalValue = nominals[selectedIndex] || 0;
             performCalculations(a, a1, b, b1, nominalValue, selectedIndex, textareaId, lsl, usl, ltl, utl, step_no);
-
+            
             const highRawMasterInput = document.getElementById(`high_raw_count${selectedIndex + 1}`);
             if (highRawMasterInput) {
                 highRawMasterInput.value = b1;
@@ -637,6 +740,10 @@ document.getElementById("highMasterBtn").addEventListener("click", function () {
 
 
 
+var containerIntervals = {};
+
+
+
 function performCalculations(a, a1, b, b1, e, index, textareaId, lsl, usl, ltl, utl, step_no) {
     // Ensure all values are parsed as floats
     a = parseFloat(a);
@@ -650,6 +757,7 @@ function performCalculations(a, a1, b, b1, e, index, textareaId, lsl, usl, ltl, 
     utl = parseFloat(utl);
     step_no = parseFloat(step_no);
     const response = window.fetchedResponse;
+
     const parameterNames = response.parameter_names;
     const probe_number = response.probe_number;
 
@@ -657,9 +765,7 @@ function performCalculations(a, a1, b, b1, e, index, textareaId, lsl, usl, ltl, 
     const selectedMasteringValue = masteringSelect.value;
 
     const partName = $("#partModel").val(); // Part model
-    const dateTime = document.getElementById("clock-box").value; // Date and Time
-    const dateTimeObject = new Date(dateTime); // Convert string to Date object
-    const formattedDateTime = dateTimeObject.toISOString().slice(0, 19).replace('T', ' '); // Converts to 'YYYY-MM-DD HH:mm:ss'
+    const dateTime = document.getElementById("clock-box").value;
     const probeNumber = probe_number[index];
     const parameterName = parameterNames[index] || "";
 
@@ -713,9 +819,16 @@ function performCalculations(a, a1, b, b1, e, index, textareaId, lsl, usl, ltl, 
                 
         }
 
-        // Call the updateDisplayOutput function to perform the calculation
-        updateDisplayOutput();
-        const intervalId = setInterval(updateDisplayOutput, 500);
+        if (outputInput && outputInput.id) {
+            if (containerIntervals[outputInput.id]) {
+                clearInterval(containerIntervals[outputInput.id]);
+            }
+            var intervalId = setInterval(updateDisplayOutput, 500);
+            containerIntervals[outputInput.id] = intervalId;
+        } else {
+            console.error("Output input not found or does not have an ID.");
+        }
+
     } else {
         console.error("Textarea or output input not found.");
     }
@@ -724,37 +837,68 @@ function performCalculations(a, a1, b, b1, e, index, textareaId, lsl, usl, ltl, 
     console.log("Calculated O1 value:", o1);
 
     payload.push({
-                    a,
-                    a1,
-                    b,
-                    b1,
-                    e,
-                    d,
-                    o1,
-                    parameter_name: parameterName,
-                    part_model: partName,
-                    date_time: formattedDateTime,
-                    mastering: selectedMasteringValue,
-                    probeNumber: probeNumber
-                });
-
-                // Post the collected data to the back-end
-    $.ajax({
-        url: "/master/", // Replace with your actual URL
-        type: "POST",
-        headers: {
-            'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val() // Add the CSRF token here
-        },
-        data: {
-            payload: JSON.stringify(payload)
-        },
-        success: function (response) {
-            console.log("Data sent successfully:", response);
-        },
-        error: function (xhr, status, error) {
-            console.error("Error occurred:", error);
-        }
+        a,
+        a1,
+        b,
+        b1,
+        e,
+        d,
+        o1,
+        parameter_name: parameterName,
+        part_model: partName,
+        date_time: dateTime,
+        mastering: selectedMasteringValue,
+        probeNumber: probeNumber
     });
+    console.log("your payload is this:",payload);
+
+
+    fetch('/data/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ payload: payload }) // Wrap the payload in an object
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Response from backend:", data);
+        // Notification logic
+        const notification = document.createElement('div');
+        notification.style.position = 'fixed';
+        notification.style.top = '5%';
+        notification.style.left = '35%';
+        notification.style.width = '30%';
+        notification.style.height = '20%';
+        notification.style.display = 'flex';
+        notification.style.alignItems = 'center';
+        notification.style.justifyContent = 'center';
+        notification.style.zIndex = '1000';
+        notification.style.color = 'white';
+        notification.style.fontSize = '1.5rem';
+        notification.style.fontWeight = 'bold';
+        notification.style.borderRadius = '10px';
+
+        if (data.message) {
+            notification.textContent = data.message;
+            notification.style.backgroundColor = 'green';
+        } else if (data.error) {
+            notification.textContent = data.error;
+            notification.style.backgroundColor = 'red';
+        }
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 2000);
+
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+
 }
 
 
@@ -797,9 +941,6 @@ function showCustomAlert(message) {
 
 
 ////////////////////////////////////////////////
-// calculation functions below:::::    
-// Function to map probe number to corresponding textarea ID
-
 
 
 

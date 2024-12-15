@@ -9,7 +9,7 @@
     <title>Measurement</title>
    
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/measure.css'%}">
+    <link rel="stylesheet" href="{% static 'css/measurements.css'%}">
     
 </head>
 <body>
@@ -43,13 +43,17 @@
         </div>
 
     </div>
+
+<!--//////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+
     <div class="container-2">
         <div class="gauge-container" id="gauge1">
             <input type="text" id="para_name1" class="input-box" />
             <div class="input-row-top">
-                <input type="text" id="max" class="input-box1-top"  />
-                <input type="text" id="min" class="input-box1-top"  />
-                <input type="text" id="tir" class="input-box1-top"  />
+                <input type="text" id="lsl_1" class="input-box1-top"  />
+                <input type="text" id="nominal_1" class="input-box1-top"  />
+                <input type="text" id="usl_1" class="input-box1-top"  />
             </div>
             <canvas id="gaugeCanvas1" width="400" height="350"></canvas>
             <!-- First row: Labels -->
@@ -69,9 +73,9 @@
         <div class="gauge-container" id="gauge2">
             <input type="text" id="para_name2" class="input-box" />
             <div class="input-row-top">
-                <input type="text" id="max" class="input-box1-top"  />
-                <input type="text" id="min" class="input-box1-top"  />
-                <input type="text" id="tir" class="input-box1-top"  />
+                <input type="text" id="lsl_2" class="input-box1-top"  />
+                <input type="text" id="nominal_2" class="input-box1-top"  />
+                <input type="text" id="usl_2" class="input-box1-top"  />
             </div>
             <canvas id="gaugeCanvas2" width="400" height="350"></canvas>
             <!-- First row: Labels -->
@@ -91,9 +95,9 @@
         <div class="gauge-container" id="gauge3">
             <input type="text" id="para_name3" class="input-box" />
             <div class="input-row-top">
-                <input type="text" id="max" class="input-box1-top"  />
-                <input type="text" id="min" class="input-box1-top"  />
-                <input type="text" id="tir" class="input-box1-top"  />
+                <input type="text" id="lsl_3" class="input-box1-top"  />
+                <input type="text" id="nominal_3" class="input-box1-top"  />
+                <input type="text" id="usl_3" class="input-box1-top"  />
             </div>
             <canvas id="gaugeCanvas3" width="400" height="350"></canvas>
             <!-- First row: Labels -->
@@ -113,9 +117,9 @@
         <div class="gauge-container" id="gauge4">
             <input type="text" id="para_name4" class="input-box" />
             <div class="input-row-top">
-                <input type="text" id="max" class="input-box1-top"  />
-                <input type="text" id="min" class="input-box1-top"  />
-                <input type="text" id="tir" class="input-box1-top"  />
+                <input type="text" id="lsl_4" class="input-box1-top"  />
+                <input type="text" id="nominal_4" class="input-box1-top"  />
+                <input type="text" id="usl_4" class="input-box1-top"  />
             </div>
             <canvas id="gaugeCanvas4" width="400" height="350"></canvas>
             <!-- First row: Labels -->
@@ -134,24 +138,67 @@
         </div>
     </div>
 
+<!--//////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 
     <div class="container-3">
         <div class="container-3-1">
             <label for="punch_no">PUNCH NO:</label>
             <input type="text" id="punch_no">
-            <button type="submit" id="start_stop_btn">START[F4] <br> STOP[F5]</button>
+
+            <div >
+               <textarea id="probe-A"></textarea>
+               <textarea id="probe-B"></textarea>
+                <textarea id="probe-C"></textarea>
+               <textarea id="probe-D"></textarea>
+            </div>
+            <button id="rest-btn" class="toggle-btn">START[F4]<br>STOP[F5]</button>
+
         </div>
+       
         <div class="container-3-2">
+           
+
             <button type="submit" class="container-3-2-btn" id="master_btn">MASTERING[F1]</button>
             <button type="submit" class="container-3-2-btn" id="model_btn" onclick="showNextPartName()">MODEL[F2]</button>
             <button type="submit" class="container-3-2-btn" id="spc_btn">SPC[F3]</button>
             <button type="submit" class="container-3-2-btn" id="report_btn">REPORT[F6]</button>
+
+           
         </div>
+
+       
         </div>
     
    
    
 <script>
+
+document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('rest-btn');
+    let isStart = true; // Tracks the current state of the button
+
+    button.addEventListener('click', () => {
+        if (isStart) {
+            console.log("Start action triggered!");
+            button.innerHTML = "STOP[F5]";  // Change button text to STOP
+            button.id = 'start-btn';         // Change the button ID to 'start-btn'
+
+            // Call the getStoredData function here
+            getStoredData();
+           
+            
+        } else {
+            console.log("Stop action triggered!");
+            button.innerHTML = "START[F4]";  // Change button text to START
+            button.id = 'stop-btn';          // Change the button ID to 'stop-btn'
+        }
+        isStart = !isStart; // Toggle the state
+    });
+    
+
+});
+
+
 
 // Initialize the list of part names and the current index
         let receivedValue = "{{ part_model|safe }}";
@@ -162,17 +209,38 @@
 
         let currentIndex = 1; // Start with the first part name
 
-        function showNextPartName() {
-            if (partNames.length > 0) {
-                // Update the input box with the current part name
-                document.getElementById('part_model').value = partNames[currentIndex];
-                // Increment the index and loop back to the start if needed
-                currentIndex = (currentIndex + 1) % partNames.length;
-            } else {
-                // Handle no part names case
-                alert("No part names available.");
-            }
-        }
+       // Function to update the part model and call sendPartModelToBackend
+function showNextPartName() {
+    if (partNames.length > 0) {
+        const partModel = partNames[currentIndex];
+        // Update the input field with the current part model
+        document.getElementById('part_model').value = partModel;
+
+        // Send the updated part model to the backend
+        sendPartModelToBackend(partModel);
+
+        // Increment the index and loop back to the start if needed
+        currentIndex = (currentIndex + 1) % partNames.length;
+    } else {
+        // Handle no part names case
+        alert("No part names available.");
+    }
+}
+
+// Initialize the part model input on page load and send the initial value
+$(document).ready(function () {
+    if (partNames.length > 0) {
+        // Initialize the input box with the first part name
+        const initialPartModel = partNames[0];
+        $('#part_model').val(initialPartModel);
+
+        // Send the initial part model to the backend
+        console.log("Initial partModel sent to the backend:", initialPartModel);
+        sendPartModelToBackend(initialPartModel);
+    } else {
+        console.warn("No part names available on page load.");
+    }
+});
 
         // Initialize the input box on page load
         window.onload = function () {
@@ -180,9 +248,263 @@
                 document.getElementById('part_model').value = partNames[0];
             }
         };
+/////////////////////////////////////////////////////////////////
+
+// Global object to store the response data for future use
+let responseData = {};
+
+// Function to send the part model to the backend and store the response data
+function sendPartModelToBackend(partModel) {
+    console.log("Sending updated partModel to backend:", partModel);
+
+    $.ajax({
+        url: '/measurement/', // Replace with your backend endpoint
+        method: 'POST',
+        data: { part_model: partModel },
+        success: function (response) {
+            console.log("part_name_value:", response.part_name_value);
+            console.log("char_lock_value:", response.char_lock_value);
+            console.log("char_lock_limit_value:", response.char_lock_limit_value);
+            console.log("punch_no_value:", response.punch_no_value);
+
+            // Display the 'part_name_value' in the input field with id 'part_no'
+            $('#part_no').val(response.part_name_value);
+
+
+            
+
+            responseData = {
+                partNameValue: response.part_name_value,
+                charLockValue: response.char_lock_value,
+                charLockLimitValue: response.char_lock_limit_value,
+                punchNoValue: response.punch_no_value,
+                parameterValues: response.parameter_values,
+                parameterNameArray: response.parameter_name_array,
+                channelNoArray: response.channel_no_array,
+                lowMasterArray: response.low_master_array,
+                highMasterArray: response.high_master_array,
+                nominalArray: response.nominal_array,
+                lslArray: response.lsl_array,
+                uslArray: response.usl_array,
+                ltlArray: response.ltl_array,
+                utlArray: response.utl_array,
+                stepNoArray: response.step_no_array,
+                autoManArray: response.auto_man_array,
+                timerArray: response.timer_array,
+                digitsArray: response.digits_array,
+
+                
+            };
+
+            console.log("Response Data:", responseData);
+
+            // Iterate through the parameter values and display all fields for each parameter
+            const parameterValues = response.parameter_values;
+            console.log("Step No:", response.step_no_array);
+
+            // Loop through response data and update the respective gauge elements
+            for (let i = 0; i < response.parameter_name_array.length; i++) {
+                // Update gauge-specific fields
+                let gaugeIndex = i + 1; // Adjust to match the IDs (1-based indexing)
+
+                // Update parameter name
+                $('#para_name' + gaugeIndex).val(response.parameter_name_array[i]);
+                $('#lsl_' + gaugeIndex).val(response.lsl_array[i]);
+                $('#nominal_' + gaugeIndex).val(response.nominal_array[i]);
+                $('#usl_' + gaugeIndex).val(response.usl_array[i]);
+
+                
+                // Call the `drawGauge` function and pass the nominal value for each gauge
+                drawGauge(
+                    'gaugeCanvas' + gaugeIndex,
+                    response.nominal_array[i], // Nominal value
+                    response.lsl_array[i],     // Lower specification limit (LSL)
+                    response.usl_array[i],     // Upper specification limit (USL)
+                    response.ltl_array[i],     // Lower tolerance limit (LTL)
+                    response.utl_array[i]      // Upper tolerance limit (UTL)
+                );
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error:', error);
+        }
+    });
+}
+
+
+function getStoredData() {
+    console.log("Stored Data jjjjjjjjjjjjjjjjjjjjjjjjjjjjj:", responseData);
+
+    const parameterValues = responseData.parameterValues;
+
+    // Loop through the parameterNameArray to ensure we iterate properly
+    for (let i = 0; i < responseData.parameterNameArray.length; i++) {
+        const parameter = parameterValues[i];
+
+        // Ensure parameter is not undefined and has the expected structure
+        if (!parameter || typeof parameter !== 'object') {
+            console.error(`Invalid parameter at index ${i}:`, parameter);
+            continue; // Skip invalid parameters
+        }
+
+        // Extract values for displaySerialData
+        const parameterName = responseData.parameterNameArray[i];
+        const probeNumber = responseData.channelNoArray[i];
+        const lowMaster = responseData.lowMasterArray[i];
+        const highMaster = responseData.highMasterArray[i];
+        const lsl = responseData.lslArray[i];
+        const usl = responseData.uslArray[i];
+        const ltl = responseData.ltlArray[i];
+        const utl = responseData.utlArray[i];
+        const stepNo = responseData.stepNoArray[i];
+        const autoMan = responseData.autoManArray[i];
+        const timer = responseData.timerArray[i];
+        const digits = responseData.digitsArray[i];
+
+        // Ensure that e, d, and o1 values exist in the parameter
+        const e_value = parameter.e || 0;  // Default to 0 if e_value is not found
+        const d_value = parameter.d || 0;  // Default to 0 if d_value is not found
+        const o1_value = parameter.o1 || 0;  // Default to 0 if o1_value is not found
+
+        // Call displaySerialData with the extracted values
+        displaySerialData(
+            parameterName,
+            probeNumber,
+            lowMaster,
+            highMaster,
+            lsl,
+            usl,
+            ltl,
+            utl,
+            stepNo,
+            autoMan,
+            timer,
+            digits,
+            e_value,
+            d_value,
+            o1_value
+        );
+    
+
+    // Log each element in parameterValues
+    for (let i = 0; i < parameterValues.length; i++) {
+        console.log(`\nIndex [${i}]:`);
+        console.log(`Gauge: ${i + 1}`);
+        console.log("Parameter Details:", parameterValues[i]);
+        console.log("Parameter Name:", parameterValues[i].parameter_name);
+        console.log("E:", parameterValues[i].e);
+        console.log("D:", parameterValues[i].d);
+        console.log("O1:", parameterValues[i].o1);
+    }
+
+    // Log other response data arrays
+    for (let i = 0; i < responseData.parameterNameArray.length; i++) {
+        console.log(`\nIndex [${i}]:`);
+        console.log("Gauge:", i + 1);
+        console.log("Parameter Name:", responseData.parameterNameArray[i]);
+        console.log("Channel No:", responseData.channelNoArray[i]);
+        console.log("Low Master:", responseData.lowMasterArray[i]);
+        console.log("High Master:", responseData.highMasterArray[i]);
+        console.log("Nominal:", responseData.nominalArray[i]);
+        console.log("LSL:", responseData.lslArray[i]);
+        console.log("USL:", responseData.uslArray[i]);
+        console.log("LTL:", responseData.ltlArray[i]);
+        console.log("UTL:", responseData.utlArray[i]);
+        console.log("Step No:", responseData.stepNoArray[i]);
+        console.log("Auto Man:", responseData.autoManArray[i]);
+        console.log("Timer:", responseData.timerArray[i]);
+        console.log("Digits:", responseData.digitsArray[i]);
+    }
+
+    const textareaId = mapProbeToTextareaId(probeNumber); // Get the textarea ID using probeNumber
+    console.log("textareaId:", textareaId);
+    
+
+    const textarea = document.getElementById(textareaId);
+                if (textarea) {
+                    textarea.addEventListener('input', function () {
+                        // Get the value of the textarea and treat it as 0 if empty or invalid
+                        const textareaValue = (textarea.value.trim() === '' || isNaN(parseFloat(textarea.value))) ? 0 : parseFloat(textarea.value);
+                        
+                         // Call displaySerialData with the extracted values
+        displaySerialData(
+            parameterName,
+            probeNumber,
+            lowMaster,
+            highMaster,
+            lsl,
+            usl,
+            ltl,
+            utl,
+            stepNo,
+            autoMan,
+            timer,
+            digits,
+            e_value,
+            d_value,
+            o1_value,
+            textareaValue
+        );
+});
+}
+    }
+}
 
 
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function displaySerialData(parameterName, probeNumber, lowMaster, highMaster, lsl, usl, ltl, utl, stepNo, autoMan, timer, digits, e_value, d_value, o1_value, textareaValue) {
+    // Dynamically map parameterName to canvas IDs
+    const parameterNameArray = responseData.parameterNameArray;
+    const canvasId = `gaugeCanvas${parameterNameArray.indexOf(parameterName) + 1}`; // Sequential mapping
+    console.log("Selected canvasId:", canvasId);
+
+    // The rest of your existing logic
+    const textareaId = mapProbeToTextareaId(probeNumber);
+    console.log("textareaId:", textareaId);
+    const textarea = document.getElementById(textareaId);
+    console.log("textarea:", textarea);
+
+    const newSerialData = (textarea && !isNaN(parseFloat(textarea.value))) ? parseFloat(textarea.value) : 0;
+    console.log("newSerialData:", newSerialData);
+
+    const numericEValue = parseFloat(e_value) || 0;
+    const numericDValue = parseFloat(d_value) || 0;
+    const numericO1Value = parseFloat(o1_value) || 0;
+
+    let displayOutput = numericEValue + (newSerialData * numericDValue + numericO1Value);
+    if (isNaN(displayOutput)) {
+        console.error("displayOutput is not a valid number:", displayOutput);
+        return;
+    }
+
+    displayOutput = parseFloat(displayOutput.toFixed(4));
+    console.log(`Display Output for ${parameterName}:`, displayOutput);
+
+    drawGauge(canvasId, numericEValue, lsl, usl, ltl, utl, displayOutput);
+}
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Function to map probe numbers to textarea IDs
+function mapProbeToTextareaId(probeNumber) {
+    const probeMapping = {
+        1: "probe-A",
+        2: "probe-B",
+        3: "probe-C",
+        4: "probe-D"
+    };
+
+    return probeMapping[probeNumber] || null; // Return null if no mapping is found
+}
+
+
+////////////////////////////////////////////////////////////////////////////
 
 $(document).ready(function () {
     $("#master_btn").click(function () {
@@ -206,13 +528,14 @@ $(document).ready(function () {
 });
 
 
-/////////////////////////////////////////////////////////////////
+
+
+
 //////////////////////////////////////////////////////////////////
-
-
-function drawGauge(canvasId, value = 0) {
+function drawGauge(canvasId, nominal, lsl, usl, ltl, utl, displayOutput) {
+    console.log("Drawing gauge:", { canvasId, nominal, lsl, usl, ltl, utl });
     const canvas = document.getElementById(canvasId);
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
 
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
@@ -227,20 +550,16 @@ function drawGauge(canvasId, value = 0) {
     ctx.strokeStyle = 'white';
     ctx.stroke();
 
-    // Draw the color zones
-    drawZone(ctx, centerX, centerY, radius, 0.75 * Math.PI, Math.PI, '#f00'); // Red
-    drawZone(ctx, centerX, centerY, radius, Math.PI, 1.5 * Math.PI, '#ffd700'); // Yellow
-    drawZone(ctx, centerX, centerY, radius, 1.5 * Math.PI, 2.25 * Math.PI, '#0f0'); // Green
+    // Draw ticks and labels
+    drawTicksAndLabels(ctx, centerX, centerY, radius, nominal, lsl, usl, ltl, utl);
 
-    // Draw ticks and numbers
-    drawTicksAndLabels(ctx, centerX, centerY, radius);
+    // Draw the needle with respect to the nominal value (assuming nominal is the desired value here)
+    drawNeedle(ctx, centerX, centerY, radius, nominal, nominal);
 
-    // Draw the needle
-    drawNeedle(ctx, centerX, centerY, radius, value);
-
-    // Draw the reading inside the canvas
-    drawReadingText(ctx, centerX, centerY, value);
+    // Pass displayOutput to drawReadingText
+    drawReadingText(ctx, centerX, centerY, displayOutput); // Passing displayOutput
 }
+
 
 function drawZone(ctx, x, y, radius, startAngle, endAngle, color) {
     ctx.beginPath();
@@ -250,10 +569,61 @@ function drawZone(ctx, x, y, radius, startAngle, endAngle, color) {
     ctx.stroke();
 }
 
-function drawTicksAndLabels(ctx, x, y, radius) {
-    ctx.font = '14px Arial';
-    ctx.fillStyle = '#000';
-    ctx.textAlign = 'center';
+function drawTicksAndLabels(ctx, x, y, radius, nominal, lsl, usl, ltl, utl) {
+    // Ensure nominal and limits are numbers
+    nominal = parseFloat(nominal);
+    lsl = parseFloat(lsl);
+    usl = parseFloat(usl);
+    ltl = parseFloat(ltl);
+    utl = parseFloat(utl);
+
+    if (
+        isNaN(nominal) || 
+        isNaN(lsl) || 
+        isNaN(usl) || 
+        isNaN(ltl) || 
+        isNaN(utl)
+    ) {
+        console.error("Invalid values:", { nominal, lsl, usl, ltl, utl });
+        return;
+    }
+
+    // Define the microns range
+    const micronRange = 50;
+    const minValue = nominal - micronRange / 1000;
+    const maxValue = nominal + micronRange / 1000;
+
+    // Map values to angles
+    function mapToAngle(value) {
+        return (
+            0.75 * Math.PI + ((value - minValue) * 1.5 * Math.PI) / (maxValue - minValue)
+        );
+    }
+
+    const zones = [
+        { start: minValue, end: ltl, color: "#f00" }, // Red (below LTL)
+        { start: ltl, end: lsl, color: "#ffd700" }, // Yellow (LTL to LSL)
+        { start: lsl, end: usl, color: "#0f0" }, // Green (LSL to USL)
+        { start: usl, end: utl, color: "#ffd700" }, // Yellow (USL to UTL)
+        { start: utl, end: maxValue, color: "#f00" }, // Red (above UTL)
+    ];
+
+    // Draw zones
+    zones.forEach(({ start, end, color }) => {
+        const startAngle = mapToAngle(start);
+        const endAngle = mapToAngle(end);
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius - 10, startAngle, endAngle, false);
+        ctx.lineWidth = 20; // Adjust thickness
+        ctx.strokeStyle = color;
+        ctx.stroke();
+    });
+
+    // Draw ticks and labels
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "#000";
+    ctx.textAlign = "center";
 
     for (let i = -50; i <= 50; i++) {
         const angle = 0.75 * Math.PI + ((i + 50) * 1.5 * Math.PI) / 100;
@@ -270,22 +640,29 @@ function drawTicksAndLabels(ctx, x, y, radius) {
         ctx.moveTo(outerTickX, outerTickY);
         ctx.lineTo(innerTickX, innerTickY);
         ctx.lineWidth = tickWidth;
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = "#000";
         ctx.stroke();
 
         // Draw label for large ticks
         if (i % 10 === 0) {
-            const labelX = x + (radius - 40) * Math.cos(angle);
-            const labelY = y + (radius - 40) * Math.sin(angle);
-            ctx.fillText(i, labelX, labelY);
+            const labelX = x + (radius - 40) * Math.cos(angle); // Position inside the gauge
+            const labelY = y + (radius - 40) * Math.sin(angle); // Position inside the gauge
+            const labelValue = nominal + i / 1000; // Scale the label based on nominal
+            // ctx.fillText(labelValue.toFixed(3), labelX, labelY);
+            ctx.fillText(i, labelX, labelY); // Display -50 to +50 directly
+        
         }
     }
 }
 
-function drawNeedle(ctx, x, y, radius, value) {
+
+
+
+
+function drawNeedle(ctx, x, y, radius) {
     const needleLength = radius - 20; // Needle length
 
-    const angle = 0.75 * Math.PI + ((value + 50) * 1.5 * Math.PI) / 100;
+    const angle = 0.75 * Math.PI + (( 50) * 1.5 * Math.PI) / 100; // Adjusted for nominal value
 
     const tipX = x + needleLength * Math.cos(angle);
     const tipY = y + needleLength * Math.sin(angle);
@@ -321,8 +698,12 @@ function drawNeedle(ctx, x, y, radius, value) {
     ctx.fill();
 }
 
-function drawReadingText(ctx, x, y, value, marginLeft = 15, borderWidth = 2) {
-    const readingText = `${value.toFixed(4)} MM`;
+function drawReadingText(ctx, x, y, displayOutput, marginLeft = 15, borderWidth = 2) {
+    // Ensure displayOutput is a valid number, fallback to 0 if invalid
+    displayOutput = (isNaN(displayOutput)) ? 0 : displayOutput;
+
+    // Use displayOutput for the reading value
+    const readingText = `${displayOutput.toFixed(4)} MM`;
 
     ctx.font = '25px Arial';
     ctx.fillStyle = 'black';
@@ -347,13 +728,6 @@ function drawReadingText(ctx, x, y, value, marginLeft = 15, borderWidth = 2) {
     ctx.fillText(readingText, x - marginLeft, y + 145);
 }
 
-
-
-// Initialize the gauges
-drawGauge('gaugeCanvas1', 17);
-drawGauge('gaugeCanvas2', 30.123);
-drawGauge('gaugeCanvas3', 45.987);
-drawGauge('gaugeCanvas4', 0);
 
 
 
@@ -396,6 +770,7 @@ function updateClock() {
 updateClock();        
 
     </script>
+    
     
 </body>
 </html>
