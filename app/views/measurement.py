@@ -8,6 +8,7 @@ from app.models import master_data, paraTableData, Parameter_Settings
 @csrf_exempt
 def measurement(request):
     if request.method == 'POST':
+        
         part_model_get = request.POST.get('part_model', '')
         print("part_model_get:", part_model_get)
 
@@ -117,6 +118,7 @@ def measurement(request):
             'digits_array': digits_array,
             'parameter_values':parameter_values,
         })
+    
 
     elif request.method == 'GET':
 

@@ -9,7 +9,7 @@
     <title>Measurement</title>
    
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/measurements.css'%}">
+    <link rel="stylesheet" href="{% static 'css/measurement.css'%}">
     
 </head>
 <body>
@@ -40,6 +40,7 @@
         </div>
         <div class="container-1-3">
             <input type="text" id="notification_bar">
+            <input type="text" id="overall_status" >
         </div>
 
     </div>
@@ -65,9 +66,9 @@
 
             <!-- Second row: Input boxes -->
             <div class="input-row">
-                <input type="text" id="max" class="input-box1"  />
-                <input type="text" id="min" class="input-box1"  />
-                <input type="text" id="tir" class="input-box1"  />
+                <input type="text" id="max1" class="input-box1"  />
+                <input type="text" id="min1" class="input-box1"  />
+                <input type="text" id="tir1" class="input-box1"  />
             </div>
         </div>
         <div class="gauge-container" id="gauge2">
@@ -87,9 +88,9 @@
 
             <!-- Second row: Input boxes -->
             <div class="input-row">
-                <input type="text" id="max" class="input-box1"  />
-                <input type="text" id="min" class="input-box1"  />
-                <input type="text" id="tir" class="input-box1"  />
+                <input type="text" id="max2" class="input-box1"  />
+                <input type="text" id="min2" class="input-box1"  />
+                <input type="text" id="tir2" class="input-box1"  />
             </div>
         </div>
         <div class="gauge-container" id="gauge3">
@@ -109,9 +110,9 @@
 
             <!-- Second row: Input boxes -->
             <div class="input-row">
-                <input type="text" id="max" class="input-box1"  />
-                <input type="text" id="min" class="input-box1"  />
-                <input type="text" id="tir" class="input-box1"  />
+                <input type="text" id="max3" class="input-box1"  />
+                <input type="text" id="min3" class="input-box1"  />
+                <input type="text" id="tir3" class="input-box1"  />
             </div>
         </div>
         <div class="gauge-container" id="gauge4">
@@ -131,9 +132,9 @@
 
             <!-- Second row: Input boxes -->
             <div class="input-row">
-                <input type="text" id="max" class="input-box1"/>
-                <input type="text" id="min" class="input-box1"/>
-                <input type="text" id="tir" class="input-box1"/>
+                <input type="text" id="max4" class="input-box1"/>
+                <input type="text" id="min4" class="input-box1"/>
+                <input type="text" id="tir4" class="input-box1"/>
             </div>
         </div>
     </div>
@@ -173,30 +174,35 @@
    
 <script>
 
+let displayOutputs = []; // Array to store displayOutput values between Start and Stop
+
 document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('rest-btn');
     let isStart = true; // Tracks the current state of the button
 
     button.addEventListener('click', () => {
         if (isStart) {
+            // Start action triggered
             console.log("Start action triggered!");
             button.innerHTML = "STOP[F5]";  // Change button text to STOP
-            button.id = 'start-btn';         // Change the button ID to 'start-btn'
+            button.id = 'stop-btn';         // Change the button ID to 'stop-btn'
 
-            // Call the getStoredData function here
+            // Call your function to start data collection
             getStoredData();
-           
-            
+
         } else {
+            // Stop action triggered
             console.log("Stop action triggered!");
             button.innerHTML = "START[F4]";  // Change button text to START
-            button.id = 'stop-btn';          // Change the button ID to 'stop-btn'
+            button.id = 'start-btn';         // Change the button ID to 'start-btn'
+
+            // Calculate and display max, min, and tir
+            calculateMaxMinTir();
         }
         isStart = !isStart; // Toggle the state
     });
-    
-
 });
+
 
 
 
@@ -455,20 +461,19 @@ function getStoredData() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+let displayOutputsGauge1 = [];
+let displayOutputsGauge2 = [];
+let displayOutputsGauge3 = [];
+let displayOutputsGauge4 = [];
+
 function displaySerialData(parameterName, probeNumber, lowMaster, highMaster, lsl, usl, ltl, utl, stepNo, autoMan, timer, digits, e_value, d_value, o1_value, textareaValue) {
-    // Dynamically map parameterName to canvas IDs
     const parameterNameArray = responseData.parameterNameArray;
     const canvasId = `gaugeCanvas${parameterNameArray.indexOf(parameterName) + 1}`; // Sequential mapping
-    console.log("Selected canvasId:", canvasId);
 
-    // The rest of your existing logic
     const textareaId = mapProbeToTextareaId(probeNumber);
-    console.log("textareaId:", textareaId);
     const textarea = document.getElementById(textareaId);
-    console.log("textarea:", textarea);
 
     const newSerialData = (textarea && !isNaN(parseFloat(textarea.value))) ? parseFloat(textarea.value) : 0;
-    console.log("newSerialData:", newSerialData);
 
     const numericEValue = parseFloat(e_value) || 0;
     const numericDValue = parseFloat(d_value) || 0;
@@ -481,12 +486,81 @@ function displaySerialData(parameterName, probeNumber, lowMaster, highMaster, ls
     }
 
     displayOutput = parseFloat(displayOutput.toFixed(4));
-    console.log(`Display Output for ${parameterName}:`, displayOutput);
 
+    // Store the displayOutput value in the respective gauge array dynamically
+    if (document.getElementById('stop-btn').innerHTML === "STOP[F5]") {
+        // Dynamically map the parameterName to the appropriate display array
+        const gaugeIndex = parameterNameArray.indexOf(parameterName);
+        if (gaugeIndex === 0) {
+            displayOutputsGauge1.push(displayOutput);
+        } else if (gaugeIndex === 1) {
+            displayOutputsGauge2.push(displayOutput);
+        } else if (gaugeIndex === 2) {
+            displayOutputsGauge3.push(displayOutput);
+        } else if (gaugeIndex === 3) {
+            displayOutputsGauge4.push(displayOutput);
+        } else {
+            console.error("Invalid gauge name:", parameterName);
+        }
+    }
+
+    // Draw the gauge (this function is not fully implemented here, but it will work as expected)
     drawGauge(canvasId, numericEValue, lsl, usl, ltl, utl, displayOutput);
 }
 
+function calculateMaxMinTir() {
+    // Calculate for gauge 1
+    if (displayOutputsGauge1.length > 0) {
+        const max1 = Math.max(...displayOutputsGauge1);
+        const min1 = Math.min(...displayOutputsGauge1);
+        const tir1 = (max1 - min1) / 2;
 
+        document.getElementById('max1').value = max1.toFixed(4);
+        document.getElementById('min1').value = min1.toFixed(4);
+        document.getElementById('tir1').value = tir1.toFixed(4);
+
+        console.log(`Gauge 1 - Max: ${max1}, Min: ${min1}, TIR: ${tir1}`);
+    }
+
+    // Calculate for gauge 2
+    if (displayOutputsGauge2.length > 0) {
+        const max2 = Math.max(...displayOutputsGauge2);
+        const min2 = Math.min(...displayOutputsGauge2);
+        const tir2 = (max2 - min2) / 2;
+
+        document.getElementById('max2').value = max2.toFixed(4);
+        document.getElementById('min2').value = min2.toFixed(4);
+        document.getElementById('tir2').value = tir2.toFixed(4);
+
+        console.log(`Gauge 2 - Max: ${max2}, Min: ${min2}, TIR: ${tir2}`);
+    }
+
+    // Calculate for gauge 3
+    if (displayOutputsGauge3.length > 0) {
+        const max3 = Math.max(...displayOutputsGauge3);
+        const min3 = Math.min(...displayOutputsGauge3);
+        const tir3 = (max3 - min3) / 2;
+
+        document.getElementById('max3').value = max3.toFixed(4);
+        document.getElementById('min3').value = min3.toFixed(4);
+        document.getElementById('tir3').value = tir3.toFixed(4);
+
+        console.log(`Gauge 3 - Max: ${max3}, Min: ${min3}, TIR: ${tir3}`);
+    }
+
+    // Calculate for gauge 4
+    if (displayOutputsGauge4.length > 0) {
+        const max4 = Math.max(...displayOutputsGauge4);
+        const min4 = Math.min(...displayOutputsGauge4);
+        const tir4 = (max4 - min4) / 2;
+
+        document.getElementById('max4').value = max4.toFixed(4);
+        document.getElementById('min4').value = min4.toFixed(4);
+        document.getElementById('tir4').value = tir4.toFixed(4);
+
+        console.log(`Gauge 4 - Max: ${max4}, Min: ${min4}, TIR: ${tir4}`);
+    }
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -533,32 +607,57 @@ $(document).ready(function () {
 
 //////////////////////////////////////////////////////////////////
 function drawGauge(canvasId, nominal, lsl, usl, ltl, utl, displayOutput) {
-    console.log("Drawing gauge:", { canvasId, nominal, lsl, usl, ltl, utl });
     const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        console.error(`Canvas with ID ${canvasId} not found`);
+        return;
+    }
+
     const ctx = canvas.getContext("2d");
+    const x = canvas.width / 2;
+    const y = canvas.height / 2;
+    const radius = Math.min(x, y) - 10; // Adjust gauge size to fit canvas
 
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = 150;
+    // Clear previous content
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear previous drawing
-
-    // Draw the outer circle (3/4 circle)
+    // Draw the gauge background
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0.75 * Math.PI, 2.25 * Math.PI);
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = 'white';
+    ctx.arc(x, y, radius, 0.75 * Math.PI, 2.25 * Math.PI); // Partial arc for the background (0.75π to 2.25π)
+    ctx.fillStyle = "#f0f0f0"; // Gauge background color
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#000";
     ctx.stroke();
 
-    // Draw ticks and labels
-    drawTicksAndLabels(ctx, centerX, centerY, radius, nominal, lsl, usl, ltl, utl);
+    // Draw the arc for LSL (Lower Specification Limit) to USL (Upper Specification Limit)
+    const startAngle = 0.75 * Math.PI; // Starting angle for the gauge
+    const endAngle = 2.25 * Math.PI; // Ending angle for the gauge
 
-    // Draw the needle with respect to the nominal value (assuming nominal is the desired value here)
-    drawNeedle(ctx, centerX, centerY, radius, nominal, nominal);
+    // Arc for LSL (Lower Specification Limit)
+    ctx.beginPath();
+    ctx.arc(x, y, radius, startAngle, endAngle, false); // Full arc
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#ff0000'; // Color for the arc (e.g., red for LSL/USL range)
+    ctx.stroke();
 
-    // Pass displayOutput to drawReadingText
-    drawReadingText(ctx, centerX, centerY, displayOutput); // Passing displayOutput
+    // Arc for USL (Upper Specification Limit)
+    ctx.beginPath();
+    ctx.arc(x, y, radius, startAngle, endAngle, false); // Full arc
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#00ff00'; // Color for the arc (e.g., green for USL range)
+    ctx.stroke();
+
+    // Draw the ticks and labels (optional - you can customize the drawing of ticks and labels)
+    drawTicksAndLabels(ctx, x, y, radius, nominal, lsl, usl, ltl, utl);
+
+    // Draw the needle to indicate the value
+    drawNeedle(ctx, x, y, radius, nominal, lsl, usl, ltl, utl, displayOutput);
+
+     // Pass displayOutput to drawReadingText
+     drawReadingText(ctx, x, y, displayOutput,nominal, lsl, usl, ltl, utl); // Passing displayOutput
 }
+
 
 
 function drawZone(ctx, x, y, radius, startAngle, endAngle, color) {
@@ -658,73 +757,121 @@ function drawTicksAndLabels(ctx, x, y, radius, nominal, lsl, usl, ltl, utl) {
 
 
 
+function drawNeedle(ctx, x, y, radius, nominal, lsl, usl, ltl, utl, displayOutput = nominal) {
+    // Ensure values are valid numbers before proceeding
+    nominal = parseFloat(nominal);
+    lsl = parseFloat(lsl);
+    usl = parseFloat(usl);
+    ltl = parseFloat(ltl);
+    utl = parseFloat(utl);
 
-function drawNeedle(ctx, x, y, radius) {
-    const needleLength = radius - 20; // Needle length
+    if (isNaN(nominal) || isNaN(lsl) || isNaN(usl) || isNaN(ltl) || isNaN(utl)) {
+        console.error("Invalid values:", { nominal, lsl, usl, ltl, utl });
+        return; // Exit function if any values are invalid
+    }
 
-    const angle = 0.75 * Math.PI + (( 50) * 1.5 * Math.PI) / 100; // Adjusted for nominal value
+    // Define the microns range
+    const micronRange = 50;
+    const minValue = nominal - micronRange / 1000;
+    const maxValue = nominal + micronRange / 1000;
 
-    const tipX = x + needleLength * Math.cos(angle);
-    const tipY = y + needleLength * Math.sin(angle);
+    // Map values to angles
+    function mapToAngle(value) {
+        return (
+            0.75 * Math.PI + ((value - minValue) * 1.5 * Math.PI) / (maxValue - minValue)
+        );
+    }
 
+    // Set default needle position if displayOutput is undefined
+    if (typeof displayOutput === "undefined" || isNaN(displayOutput)) {
+        displayOutput = nominal; // Default to the nominal value
+    }
+
+    // Calculate the needle angle
+    const needleAngle = mapToAngle(displayOutput);
+    const needleLength = radius - 20;
+
+    // Needle tip position
+    const tipX = x + needleLength * Math.cos(needleAngle);
+    const tipY = y + needleLength * Math.sin(needleAngle);
+
+    // Base of the needle
     const baseRadius = 25;
-    const baseAngle1 = angle - 0.2;
-    const baseAngle2 = angle + 0.2;
+    const baseAngle1 = needleAngle - 0.2;
+    const baseAngle2 = needleAngle + 0.2;
+
     const baseX1 = x + baseRadius * Math.cos(baseAngle1);
     const baseY1 = y + baseRadius * Math.sin(baseAngle1);
     const baseX2 = x + baseRadius * Math.cos(baseAngle2);
     const baseY2 = y + baseRadius * Math.sin(baseAngle2);
 
-    const rearX = x - 15 * Math.cos(angle);
-    const rearY = y - 15 * Math.sin(angle);
+    // Rear part of the needle
+    const rearX = x - 15 * Math.cos(needleAngle);
+    const rearY = y - 15 * Math.sin(needleAngle);
 
+    // Draw the needle shape
     ctx.beginPath();
-    ctx.moveTo(tipX, tipY);
-    ctx.lineTo(baseX1, baseY1);
-    ctx.lineTo(rearX, rearY);
-    ctx.lineTo(baseX2, baseY2);
+    ctx.moveTo(tipX, tipY); // Tip of the needle
+    ctx.lineTo(baseX1, baseY1); // Left base
+    ctx.lineTo(rearX, rearY);   // Rear base
+    ctx.lineTo(baseX2, baseY2); // Right base
     ctx.closePath();
 
-    ctx.fillStyle = '#ff4500';
+    ctx.fillStyle = '#ff4500'; // Needle fill color
     ctx.fill();
     ctx.lineWidth = 2;
-    ctx.strokeStyle = '#333';
+    ctx.strokeStyle = '#333'; // Needle border color
     ctx.stroke();
 
     // Draw the pivot circle at the center
     ctx.beginPath();
     ctx.arc(x, y, 6, 0, 2 * Math.PI);
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = '#333'; // Pivot fill color
     ctx.fill();
 }
 
-function drawReadingText(ctx, x, y, displayOutput, marginLeft = 15, borderWidth = 2) {
+
+
+function drawReadingText(ctx, x, y, displayOutput, nominal, lsl, usl, ltl, utl, marginLeft = 15, borderWidth = 2) {
     // Ensure displayOutput is a valid number, fallback to 0 if invalid
-    displayOutput = (isNaN(displayOutput)) ? 0 : displayOutput;
+    displayOutput = isNaN(displayOutput) ? 0 : displayOutput;
 
     // Use displayOutput for the reading value
     const readingText = `${displayOutput.toFixed(4)} MM`;
 
     ctx.font = '25px Arial';
-    ctx.fillStyle = 'black';
+    ctx.textAlign = 'center'; // Center the text horizontally
+    ctx.textBaseline = 'middle'; // Vertically center the text
 
-    // Draw a white background for the reading
+    // Determine background color based on displayOutput thresholds
+    let backgroundColor = 'white'; // Default color
+    if (displayOutput < ltl) {
+        backgroundColor = '#f00'; // Red: Below LTL
+    } else if (displayOutput >= ltl && displayOutput < lsl) {
+        backgroundColor = '#ffd700'; // Yellow: Between LTL and LSL
+    } else if (displayOutput >= lsl && displayOutput <= usl) {
+        backgroundColor = '#0f0'; // Green: Between LSL and USL
+    } else if (displayOutput > usl && displayOutput <= utl) {
+        backgroundColor = '#ffd700'; // Yellow: Between USL and UTL
+    } else if (displayOutput > utl) {
+        backgroundColor = '#f00'; // Red: Above UTL
+    }
+
+    // Measure text dimensions
     const textWidth = ctx.measureText(readingText).width;
     const textHeight = 40; // Approximate height of the text
 
-    // White background with a border
-    ctx.fillStyle = 'white';
-    ctx.fillRect(x - textWidth / 2 - 10 - marginLeft, y + 120, textWidth + 40, textHeight); // White background
+    // Draw the background with dynamic color
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(x - textWidth / 2 - 10 - marginLeft, y + 120, textWidth + 40, textHeight);
 
     // Border around the box
     ctx.strokeStyle = 'black'; // Border color
     ctx.lineWidth = borderWidth; // Border thickness
-    ctx.strokeRect(x - textWidth / 2 - 10 - marginLeft, y + 120, textWidth + 40, textHeight); // Border
+    ctx.strokeRect(x - textWidth / 2 - 10 - marginLeft, y + 120, textWidth + 40, textHeight);
 
     // Draw the actual text on top
     ctx.fillStyle = 'black';
-    ctx.textAlign = 'center'; // Center the text horizontally
-    ctx.textBaseline = 'middle'; // Vertically center the text
     ctx.fillText(readingText, x - marginLeft, y + 145);
 }
 

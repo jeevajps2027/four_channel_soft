@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 
 # Create your models here.
@@ -56,3 +57,41 @@ class master_data(models.Model):
 
     def __str__(self):
         return f"{self.parameter_name} - {self.part_model}"
+    
+
+class User_Data(models.Model):
+    id = models.AutoField(primary_key=True)  # Auto-incrementing ID
+    username = models.CharField(max_length=255, unique=True)  # Username with a unique constraint
+
+    def __str__(self):
+        return self.username    
+    
+
+class ComportSetting(models.Model):
+    com_port = models.CharField(max_length=255)
+    baud_rate = models.CharField(max_length=255)
+    parity = models.CharField(max_length=255)
+    stop_bit = models.CharField(max_length=255)
+    data_bit = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.com_port} - {self.baud_rate}"    
+    
+
+
+class Data_Shift(models.Model):
+    shift = models.CharField(max_length=50)
+    shift_time = models.CharField(max_length=20) 
+
+    def __str__(self):
+        return f"{self.shift} - {self.shift_time}"
+
+    def save(self, *args, **kwargs):
+        if self.shift_time:  # Convert the string to a datetime object
+            try:
+                parsed_time = datetime.strptime(self.shift_time, "%I:%M:%S %p")
+                self.shift_time = parsed_time.strftime(" %I:%M:%S %p")
+            except ValueError:
+                # Handle the case where the string is not in the expected format
+                pass
+        super().save(*args, **kwargs)

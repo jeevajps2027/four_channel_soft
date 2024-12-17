@@ -155,8 +155,16 @@ body {
     padding:2px;
 }
 #notification_bar{
-    width: 99%;
+    width: 80%;
     background-color: orange;
+    font-weight: bold;
+    font-size: 30px;
+    color: black;
+    text-align: center;
+}
+#overall_status{
+    width: 15%;
+    margin-left: 2%;
     font-weight: bold;
     font-size: 30px;
     color: black;

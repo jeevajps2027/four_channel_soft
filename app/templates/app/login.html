@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+
+    <title>LOGIN</title>
+
+</head>
+
+<body>
+    <div id="notification"></div>
+
+<div class="container-1">
+    <div class="subcontainer-1">
+        <label id="label_input">
+            <input type="text" id="user_id" placeholder="USERID">
+        </label><br>
+        <label id="label_input-1">
+            <input type="text" id="password" placeholder="PASSWORD">
+        </label><br>
+        <input type="button" id="login" value="LOGIN" onclick="handleLogin()">
+    </div>
+    <ul hidden>
+        {% for operator in operator_names %}
+            <li>{{ operator }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+function getCSRFToken() {
+    // Retrieve the CSRF token from the cookie
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+    return cookieValue;
+}
+
+window.addEventListener('DOMContentLoaded', (event) => {
+            var inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.setAttribute('autocomplete', 'off');
+            });
+        });
+        
+
+
+
+function handleLogin() {
+    const username = document.getElementById('user_id').value;
+    const password = document.getElementById('password').value;
+    const csrfToken = getCSRFToken(); // Get the CSRF token
+
+    fetch('/measurement/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken, // Include the CSRF token in the headers
+        },
+        body: JSON.stringify({ username, password }),
+    })
+
+    fetch('/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken, // Include the CSRF token in the headers
+        },
+        body: JSON.stringify({ username, password }),
+    })
+        .then(response => {
+            if (!response.ok) {
+                // If the response is not OK (e.g., 403, 500), handle it as text/HTML
+                return response.text().then(text => {
+                    throw new Error(`Error: ${response.status}\n${text}`);
+                });
+            }
+            return response.json(); // Parse JSON response if OK
+        })
+        .then(data => {
+            // Get the notification div element
+            const notification = document.getElementById('notification');
+            
+            // Set the message and color based on the status
+            if (data.status === 'success') {
+                notification.textContent = data.message;
+                notification.style.backgroundColor = 'green'; // Success message color
+
+                // Clear the input fields for user_id and password
+                document.getElementById('user_id').value = '';
+                document.getElementById('password').value = '';
+
+                // Prepare the username for redirection
+                const usernameForRedirect = username === 'saadmin' ? '' : encodeURIComponent(username);
+
+                // Redirect to the measurement URL with the username conditionally
+                setTimeout(() => {
+                    const redirectUrl = `${data.redirect}`;
+                    window.location.href = redirectUrl; // Redirect after 2 seconds
+                }, 2000);
+            } else {
+                notification.textContent = data.message;
+                notification.style.backgroundColor = 'red'; // Error message color
+            }
+
+            // Display the notification
+            notification.style.display = 'block';
+
+            // Hide the notification after 2 seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const notification = document.getElementById('notification');
+            notification.textContent = `Login failed: ${error.message}`;
+            notification.style.backgroundColor = 'red';
+            notification.style.display = 'block';
+
+            // Hide the notification after 2 seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        });
+}
+
+
+
+
+
+</script>
+</body>
+</html>
