@@ -95,3 +95,32 @@ class Data_Shift(models.Model):
                 # Handle the case where the string is not in the expected format
                 pass
         super().save(*args, **kwargs)
+
+
+
+
+
+
+class MeasurementData(models.Model):
+    date = models.DateTimeField()
+    comp_sr_no = models.CharField(max_length=100)
+    part_model = models.CharField(max_length=100)
+    part_name = models.CharField(max_length=100)
+    operator = models.CharField(max_length=100)
+    shift = models.CharField(max_length=10)
+    parameter_name = models.CharField(max_length=100)
+    lsl = models.FloatField()
+    usl = models.FloatField()
+    ltl = models.FloatField()
+    utl = models.FloatField()
+    nominal = models.FloatField()
+    output = models.FloatField()
+    max_value = models.FloatField()
+    min_value = models.FloatField()
+    tir_value = models.FloatField()
+    overall_status = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"Measurement for {self.part_name} on {self.date_time}"
+
+    

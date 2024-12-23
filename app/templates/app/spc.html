@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    
+
+    <title>SPC</title>  
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box; /* Includes border in the width and height calculations */
+            overflow: hidden; /* Prevents scrolling caused by overflow */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-wrap: wrap; /* Allows content to wrap to the next row */
+            border: 5px solid lightseagreen;
+        }
+
+        .container-1 {
+            height: 10%;
+            width: 100%;
+            border: 1px solid black;
+        }
+
+        .container-2 {
+    width: 100%;
+    border: 1px solid black;
+    overflow: hidden;  /* Hides overflow content */
+    height: 85vh;      /* Set a height for the container */
+    position: relative;
+}
+
+        .container-1-1 {
+            height: 90%; /* Allow the container to fill 100% height of its parent */
+            width: 100%;
+            background-color: lightgray;
+            border: 1px solid black;
+            display: flex;
+            padding:2px;
+        }
+
+#exit_btn {
+   margin-left:3% ;
+    background-color: #ff4c4c; /* Example: red background */
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    width: 5%;
+   
+}
+
+#exit_icon {
+    font-size: 2vw; /* Adjust the icon size */
+    color: white; /* Set the icon color */
+}
+.container-1-1  label{
+    font-weight: bold;
+    font-size: 1.2vw;
+    margin-left: 1%;
+}
+
+button#search_btn {
+    background-color: blue; /* Light gray background */
+    border: 1px solid white;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+   margin-left: 10%;
+    width: 5%;
+    height: 100%;
+}
+
+button#search_btn:hover {
+    background-color: rgb(59, 59, 238); /* Slightly darker on hover */
+}
+#search_icon {
+    font-size: 2vw; /* Adjust icon size */
+    color: white; /* Icon color */
+}
+#clock-box{
+    width: 17%;
+    margin-left: 2%;
+    font-weight: bold;
+    font-size: 1.3vw;
+    text-align: center;
+}
+
+#part_model{
+    width: 17%;
+    font-weight: bold;
+    font-size: 2vw;
+    text-align: center;
+}
+select{
+    width: 15%;
+    font-size: 1vw;
+    font-weight: bold;
+}
+
+#parameter_name {
+    color: black; /* Default text color */
+    font-size: 1vw;
+    text-align: center;
+}
+
+#parameter_name option {
+    color: black; /* Default option color */
+    font-weight: bold;
+    font-size: 1vw;
+    text-align: center;
+}
+        
+</style>
+</head>
+<body>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+    <div class="container-1">
+        <div class="container-1-1">
+           
+            <input type="text" id="clock-box" >
+
+            <label for="part_model">PART MODEL:</label>
+            <input type="text" id="part_model" >
+
+            <label for="parameter_name">PARAMETER NAME:</label>
+            <select id="parameter_name">
+                {% for name in parameter_names %}
+                    <option value="{{ name }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+    
+           
+
+            <button type="submit" id="search_btn">
+                <i class="fas fa-search" id="search_icon"></i>
+            </button>
+
+            <button type="submit" id="exit_btn">
+                <i class="fas fa-times" id="exit_icon"></i>
+            </button>  
+        </div>
+    </div>
+    <div class="container-2">
+
+    </div>
+
+
+<script>
+      // Function to get query parameters from the URL
+      function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Retrieve the 'part_model' value and set it in the input box
+        document.addEventListener("DOMContentLoaded", function () {
+            const partModel = getQueryParam("part_model");
+            if (partModel) {
+                document.getElementById("part_model").value = partModel;
+            } else {
+                document.getElementById("part_model").placeholder = "No part model provided.";
+            }
+        });
+
+        $(document).ready(function () {
+        // Get the value of the input field
+        var partModel = $('#part_model').val();
+
+        // Send it to the backend via AJAX
+        $.ajax({
+            url: '/spc/', // Replace with your actual URL
+            type: 'GET',
+            data: { part_model: partModel },
+            success: function (response) {
+                console.log('Data sent successfully:', response);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error sending data:', error);
+            }
+        });
+    });
+
+
+
+
+    $(document).ready(function () {
+    $('#search_btn').click(function (event) {
+        event.preventDefault();
+
+        const partModel = $('#part_model').val();
+        const parameterName = $('#parameter_name').val();
+
+        const payload = {
+            partModel: partModel,
+            parameterName: parameterName,
+        };
+
+        console.log("Payload sent to the backend:", payload);
+
+        const csrfToken = getCookie('csrftoken');
+
+        $.ajax({
+            url: '/spc/',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            success: function(response) {
+                // Insert the chart_html into the container-2 div
+                if (response.chart_html) {
+                    $('.container-2').html(response.chart_html);
+                } else {
+                    alert('Error: No chart HTML returned.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('AJAX error: ' + status + ' ' + error);
+                alert('Error fetching chart data.');
+            }
+        });
+    });
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+});
+
+
+
+
+
+      // Function to update the clock
+function updateClock() {
+  var now = new Date();
+  var hours = now.getHours();
+  var minutes = now.getMinutes();
+  var seconds = now.getSeconds();
+  var day = now.getDate();
+  var month = now.getMonth() + 1; // January is 0, so we add 1 to get the actual month
+  var year = now.getFullYear();
+
+  // Format the time string
+  var ampm = hours >= 12 ? 'PM' : 'AM'; // Determine if it's AM or PM
+  hours = hours % 12; // Convert to 12-hour format
+  hours = hours ? hours : 12; // Handle midnight (0 hours)
+  var timeString = hours + ":" + minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0') + " " + ampm;
+
+  // Format the date string
+  var dateString = day.toString().padStart(2, '0') + "-" + month.toString().padStart(2, '0') + "-" + year;
+
+  var dateTimeString = timeString + " / " + dateString;
+
+  // Update the clock display
+  document.getElementById("clock-box").value = dateTimeString;
+
+  // Call this function again after 1 second
+  setTimeout(updateClock, 1000);
+}
+
+// Call the function to initially display the clock
+updateClock();
+
+
+</script>
+</body>
+</html>

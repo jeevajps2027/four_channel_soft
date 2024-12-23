@@ -187,7 +187,7 @@ def parameter(request):
                         "digits": row.digits,
                         "id_od": row.id_od,
                     }
-                    for row in setting.table_data.all()
+                    for row in setting.table_data.all().order_by('id')
                 ]
 
                 data.append({
@@ -209,7 +209,7 @@ def parameter(request):
         try:
             # Fetch all Parameter_Settings records
             parameter_settings = Parameter_Settings.objects.all().order_by('id')  # This retrieves all records
-            table_data = paraTableData.objects.all()  # You can fetch all related paraTableData records if needed
+            table_data = paraTableData.objects.all().order_by('id')  # You can fetch all related paraTableData records if needed
 
             # Create a dictionary with sequential keys starting from 1
             parameter_settings_dict = {

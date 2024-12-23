@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render
-from app.models import Operator_setting
+from app.models import Operator_setting, User_Data
 import json
 
 def login(request):
@@ -9,6 +9,19 @@ def login(request):
             data = json.loads(request.body)
             username = data.get('username')
             password = data.get('password')
+
+            if not username:
+                return JsonResponse({'status': 'error', 'message': 'Username is required.'}, status=400)
+
+            user, created = User_Data.objects.get_or_create(id=1)  # Always use ID 1
+            user.username = username  # Update the username field with the new value
+            user.save()
+
+            # Print information about the operation
+            if created:
+                print(f'New username created: {user.username}')
+            else:
+                print(f'Username already exists: {user.username}')
 
             # Check credentials
             if username == 'saadmin' and password == 'saadmin':

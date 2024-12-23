@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 import json
 from django.views.decorators.csrf import csrf_exempt
-from app.models import master_data, paraTableData, Parameter_Settings
+from app.models import Data_Shift, User_Data, master_data, paraTableData, Parameter_Settings
 
 
 @csrf_exempt
@@ -126,8 +126,14 @@ def measurement(request):
         part_model = list(Parameter_Settings.objects.order_by('id').values_list('part_model', flat=True).distinct())           
         print('Your part names from database:', part_model)
 
+        user_name=list(User_Data.objects.all().values())
+        shift_time=list(Data_Shift.objects.all().order_by('id').values())
+        print("shift_time",shift_time)
+
         context = {
             'part_model': part_model,
+            'user_name':json.dumps(user_name),
+             'shift_time':json.dumps(shift_time)
 
         }
 

@@ -7,6 +7,22 @@ html, body {
     overflow: hidden; /* Prevents scrolling caused by overflow */
 }
 
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    z-index: 1000;
+    cursor: pointer;
+    font-size: 24px;
+}
+
 body {
     font-family: Arial, sans-serif;
     border: 5px solid lightseagreen ;
@@ -35,7 +51,7 @@ body {
 }
 
 #menu_icon {
-    font-size: 36px; /* Increase the icon size */
+    font-size: 2vw; /* Increase the icon size */
     font-weight: bold; /* Make it bold */
     color: black; /* Set color */
 }
@@ -43,14 +59,14 @@ body {
    margin-left:10% ;
     background-color: #ff4c4c; /* Example: red background */
     border: none;
-    padding: 10px;
+    padding: 5px;
     border-radius: 5px;
     width: 5%;
    
 }
 
 #exit_icon {
-    font-size: 35px; /* Adjust the icon size */
+    font-size: 2vw; /* Adjust the icon size */
     color: white; /* Set the icon color */
 }
 #operator {
@@ -59,7 +75,7 @@ body {
     box-sizing: border-box; 
    margin-left: 1%;
    font-weight: bold;
-   font-size: 30px;
+   font-size: 1.5vw;
    text-align: center;
    
 }
@@ -69,7 +85,7 @@ body {
     box-sizing: border-box; 
     margin-left: 1%;
     font-weight: bold;
-   font-size: 30px;
+   font-size: 1.5vw;
    text-align: center;
 }
 #date_time{
@@ -78,7 +94,7 @@ body {
     box-sizing: border-box; 
     margin-left: 1%;
     font-weight: bold;
-   font-size: 30px;
+   font-size: 2vw;
    text-align: center;
 }
 .container-1-2 {
@@ -92,12 +108,12 @@ body {
 
 .container-1-2 label{
     font-weight: bold;
-    font-size: 20px;
+    font-size: 1vw;
 }
 #part_model{
     width: 25%;
     font-weight: bold;
-    font-size: 35px;
+    font-size: 2vw;
     text-align: center;
     background-color: rgb(72, 71, 71);
     color: white;
@@ -105,7 +121,7 @@ body {
 #part_no{
     width: 20%;
     font-weight: bold;
-    font-size: 35px;
+    font-size: 2vw;
     text-align: center;
     background-color: rgb(72, 71, 71);
     color: white;
@@ -116,7 +132,7 @@ body {
     background-color: green;
     color: white;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 1.5vw;
     text-align: center;
 }
 #rework{
@@ -125,7 +141,7 @@ body {
     background-color: yellow;
     color: black;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 1.5vw;
     text-align: center;
 }
 #reject{
@@ -134,7 +150,7 @@ body {
     background-color: red;
     color: white;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 1.5vw;
     text-align: center;
 }
 #total{
@@ -143,7 +159,7 @@ body {
     background-color: blue;
     color: white;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 1.5vw;
     text-align: center;
 }
 .container-1-3 {
@@ -158,7 +174,7 @@ body {
     width: 80%;
     background-color: orange;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 1.5vw;
     color: black;
     text-align: center;
 }
@@ -166,7 +182,7 @@ body {
     width: 15%;
     margin-left: 2%;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 1.5vw;
     color: black;
     text-align: center;
 }
@@ -194,7 +210,7 @@ body {
     box-sizing: border-box; /* Ensure padding doesn't increase the overall width/height */
    text-align: center;
    font-weight: bold;
-   font-size: 25px;
+   font-size: 1.5vw;
 }
 
 canvas {
@@ -216,7 +232,7 @@ canvas {
     flex: 1;
     text-align: center;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 1vw;
 }
 
 .input-row {
@@ -231,7 +247,7 @@ canvas {
     padding: 5px;
     text-align: center;
     font-weight: bold;
-    font-size: 25px;
+    font-size: 1.5vw;
 }
 
 .input-row-top {
@@ -246,7 +262,7 @@ canvas {
     padding: 5px;
     text-align: center;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 1vw;
     background-color: rgb(209, 207, 207);
 }
 
@@ -267,13 +283,13 @@ canvas {
 }
 .container-3-1 label{
     font-weight: bold;
-    font-size: 30px;
+    font-size: 1.5vw;
 }
 #punch_no{
     height: 95%;
     width: 70%;
     font-weight: bold;
-    font-size: 50px;
+    font-size: 2.5vw;
    background-color:yellow;
     color: black;
 }
@@ -293,7 +309,7 @@ canvas {
     margin-left:5%;
     text-align: center;
     font-weight: bold;
-    font-size: 25px;
+    font-size: 1.5vw;
     color: white;
     font-family:'Courier New', Courier, monospace;
     background-color: rgb(77, 28, 124);
@@ -305,7 +321,7 @@ canvas {
     margin-left: 5%;
     text-align: center;
     font-weight: bold;
-    font-size: 25px;
+    font-size: 1.5vw;
     color: white;
     border: 2px solid black;
     font-family:'Courier New', Courier, monospace;
@@ -318,4 +334,85 @@ canvas {
     display: flex;
     align-items: center;
     gap: 5px; /* Add space between the elements */
+}
+
+.notify {
+    height: 10%;
+    width: 40%;
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    font-size: 2vw;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.center-notification {
+    display: none; /* Initially hidden */
+    position: fixed;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-weight: bold;
+    justify-content: center;
+    top: 45%;
+    left: 45%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    height: 250px;
+    width: 400px;
+    background-color: lightblue; /* Optional: To make it more visible */
+    padding: 20px; /* Optional: For some padding */
+    border: 2px solid black; /* Optional: For some border */
+    border-radius: 8px; /* Optional: For rounded corners */
+}
+
+#overwrite_ok_button{
+    height: 40px;
+    width: 100px;
+    background-color: green;
+    color: white;
+    font-weight: bold;
+
+}
+
+#overwrite_cancel_button{
+    height: 40px;
+    width: 100px;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+
+}
+
+#punch_login{
+    height: 40px;
+    width: 100px;
+    background-color: green;
+    color: white;
+    font-weight: bold;
+
+}
+
+#punch_overwrite_credentials{
+    margin-top: 2%; 
+    display: none;
+}
+
+.userpassinput{
+    margin-top: 5%;
+    width: 30%;
+    margin-left: 5%;
+    text-align: center;
+    font-weight: bold;
+}
+.userpassinput1{
+    margin-top: 5%;
+    width: 30%;
+    margin-left: 10%;
+    text-align: center;
+    font-weight: bold;
 }

@@ -9,10 +9,12 @@
     <title>Measurement</title>
    
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/measurement.css'%}">
+    <link rel="stylesheet" href="{% static 'css/measurements.css'%}">
     
 </head>
 <body>
+    <div class="notify" style="display: none;"></div>
+
     <div class="container-1">
         <div class="container-1-1">
             <button type="submit" id="menu_btn">
@@ -20,7 +22,7 @@
             </button>
             <input type="text" id="date_time" >
             <input type="text" id="operator" >
-            <input type="text" id="shift" >
+            <input type="text" id="shift" class="shift-name">
             <button type="submit" id="exit_btn">
                 <i class="fas fa-sign-out-alt" id="exit_icon"></i>
             </button>
@@ -33,7 +35,7 @@
             <input type="text" id="part_no" >
 
             <label for="part_status" style="margin-left: 2%;">PART STATUS:</label>
-            <input type="text" id="accept" >
+            <input type="text" id="accept">
             <input type="text" id="rework">
             <input type="text" id="reject">
             <input type="text" id="total">
@@ -52,11 +54,11 @@
         <div class="gauge-container" id="gauge1">
             <input type="text" id="para_name1" class="input-box" />
             <div class="input-row-top">
-                <input type="text" id="lsl_1" class="input-box1-top"  />
+                <input type="text" id="lsl_1" class="input-box1-top" />
                 <input type="text" id="nominal_1" class="input-box1-top"  />
                 <input type="text" id="usl_1" class="input-box1-top"  />
             </div>
-            <canvas id="gaugeCanvas1" width="400" height="350"></canvas>
+            <canvas id="gaugeCanvas1" width="400" height="330"></canvas>
             <!-- First row: Labels -->
             <div class="label-row">
                 <label for="max">MAX</label>
@@ -78,7 +80,7 @@
                 <input type="text" id="nominal_2" class="input-box1-top"  />
                 <input type="text" id="usl_2" class="input-box1-top"  />
             </div>
-            <canvas id="gaugeCanvas2" width="400" height="350"></canvas>
+            <canvas id="gaugeCanvas2" width="400" height="330"></canvas>
             <!-- First row: Labels -->
             <div class="label-row">
                 <label for="max">MAX</label>
@@ -100,7 +102,7 @@
                 <input type="text" id="nominal_3" class="input-box1-top"  />
                 <input type="text" id="usl_3" class="input-box1-top"  />
             </div>
-            <canvas id="gaugeCanvas3" width="400" height="350"></canvas>
+            <canvas id="gaugeCanvas3" width="400" height="330"></canvas>
             <!-- First row: Labels -->
             <div class="label-row">
                 <label for="max">MAX</label>
@@ -122,7 +124,7 @@
                 <input type="text" id="nominal_4" class="input-box1-top"  />
                 <input type="text" id="usl_4" class="input-box1-top"  />
             </div>
-            <canvas id="gaugeCanvas4" width="400" height="350"></canvas>
+            <canvas id="gaugeCanvas4" width="400" height="330"></canvas>
             <!-- First row: Labels -->
             <div class="label-row">
                 <label for="max">MAX</label>
@@ -146,13 +148,13 @@
             <label for="punch_no">PUNCH NO:</label>
             <input type="text" id="punch_no">
 
-            <div >
+            <div>
                <textarea id="probe-A"></textarea>
                <textarea id="probe-B"></textarea>
                 <textarea id="probe-C"></textarea>
                <textarea id="probe-D"></textarea>
             </div>
-            <button id="rest-btn" class="toggle-btn">START[F4]<br>STOP[F5]</button>
+            <button id="rest-btn" class="toggle-btn" disabled style="filter: blur(2px);">START[F4]<br>STOP[F5]</button>
 
         </div>
        
@@ -167,42 +169,97 @@
            
         </div>
 
-       
+        <div id="punch_overwrite" class="center-notification">
+            <div id="punch_overwrite_container">
+                <p id="error_message"></p>
+                <p>Do you want to OVERWRITE</p>
+                <button id="overwrite_cancel_button" onclick="punchOverwriteCancel()">CANCEL</button>
+                <button id="overwrite_ok_button" onclick="punchOverwrite()">OK</button>
+            </div>
+            <div id="punch_overwrite_credentials">
+                <label for="userid_punch">USER ID:</label>
+                <input type="text" id="userid_punch" class="userpassinput1"><br>
+                <label for="password_punch">PASSWORD:</label>
+                <input type="text" id="password_punch" class="userpassinput"><br><br>
+                <button id="punch_login" onclick="punchOverwriteLogin()">OK</button>
+                </div>
+        </div>
+
+
         </div>
     
+        
    
    
 <script>
 
-let displayOutputs = []; // Array to store displayOutput values between Start and Stop
 
-document.addEventListener('DOMContentLoaded', () => {
-    const button = document.getElementById('rest-btn');
-    let isStart = true; // Tracks the current state of the button
+$(document).ready(function () {
+    // Delay the execution by 2 seconds
+    setTimeout(function () {
+        // Get the input values
+        var dateTime = $("#date_time").val(); // Example: 21/12/2024 6:53:57 PM
+        console.log('Original value:', dateTime);
 
-    button.addEventListener('click', () => {
-        if (isStart) {
-            // Start action triggered
-            console.log("Start action triggered!");
-            button.innerHTML = "STOP[F5]";  // Change button text to STOP
-            button.id = 'stop-btn';         // Change the button ID to 'stop-btn'
-
-            // Call your function to start data collection
-            getStoredData();
-
-        } else {
-            // Stop action triggered
-            console.log("Stop action triggered!");
-            button.innerHTML = "START[F4]";  // Change button text to START
-            button.id = 'start-btn';         // Change the button ID to 'start-btn'
-
-            // Calculate and display max, min, and tir
-            calculateMaxMinTir();
+        // Convert the original format to Date object
+        var dateParts = dateTime.split(' ');
+        var date = dateParts[0].split('/');
+        var time = dateParts[1].split(':');
+        var ampm = dateParts[2];
+        
+        // Convert to 12-hour format (adjust time to 12-hour clock)
+        var hours = parseInt(time[0]);
+        if (ampm === 'PM' && hours < 12) {
+            hours += 12; // Convert PM hours to 24-hour format
         }
-        isStart = !isStart; // Toggle the state
-    });
-});
+        if (ampm === 'AM' && hours === 12) {
+            hours = 0; // Convert 12 AM to 0 (midnight)
+        }
 
+        // Construct Date object with the corrected time
+        var formattedDate = new Date(date[2], date[1] - 1, date[0], hours, time[1], time[2]);
+
+        // Format the date to "yyyy/mm/dd hh:mm:ss AM/PM"
+        var year = formattedDate.getFullYear();
+        var month = (formattedDate.getMonth() + 1).toString().padStart(2, '0'); // Add leading zero if needed
+        var day = formattedDate.getDate().toString().padStart(2, '0'); // Add leading zero if needed
+        var hours12 = formattedDate.getHours() % 12 || 12; // 12-hour format
+        var minutes = formattedDate.getMinutes().toString().padStart(2, '0');
+        var seconds = formattedDate.getSeconds().toString().padStart(2, '0');
+        var period = (formattedDate.getHours() >= 12) ? 'PM' : 'AM';
+
+        var formattedDateTime = `${year}/${month}/${day} ${hours12}:${minutes}:${seconds} ${period}`;
+        console.log('Formatted value to send:', formattedDateTime);
+
+        var shift = $("#shift").val(); // Example: SHIFT-2
+
+        // Send AJAX GET request
+        $.ajax({
+            url: '/measurement_count/', // Replace this with your actual endpoint
+            type: 'POST',
+            data: { 
+                date: formattedDateTime, 
+                shift: shift 
+            },
+            success: function (response) {
+                console.log("Data received successfully:");
+                console.log("Accept Last Occurrence:", response.accept_occurrence);
+                console.log("Reject Last Occurrence:", response.reject_occurrence);
+                console.log("Rework Last Occurrence:", response.rework_occurrence);
+                console.log("Total Occurrence:", response.total_occurrence);
+
+                // Display the values in the input fields
+                $('#accept').val(response.accept_occurrence);
+                $('#reject').val(response.reject_occurrence);
+                $('#rework').val(response.rework_occurrence);
+                $('#total').val(response.total_occurrence);
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            },
+        });
+    }, 2000); // Delay of 2000 milliseconds (2 seconds)
+});
 
 
 
@@ -256,8 +313,16 @@ $(document).ready(function () {
         };
 /////////////////////////////////////////////////////////////////
 
+
+
+
+
 // Global object to store the response data for future use
 let responseData = {};
+
+
+// Global variable to store the total number of steps
+let totalSteps ;
 
 // Function to send the part model to the backend and store the response data
 function sendPartModelToBackend(partModel) {
@@ -273,12 +338,135 @@ function sendPartModelToBackend(partModel) {
             console.log("char_lock_limit_value:", response.char_lock_limit_value);
             console.log("punch_no_value:", response.punch_no_value);
 
-            // Display the 'part_name_value' in the input field with id 'part_no'
-            $('#part_no').val(response.part_name_value);
+            if (response.punch_no_value) {
+                const punchNoField = document.getElementById('punch_no');
+                if (punchNoField) {
+                    // Focus on the 'punch_no' input field
+                    punchNoField.focus();
+                }
+
+                // Listen for "Enter" key press
+                // Listen for "Enter" key press
+                punchNoField.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        const inputValue = punchNoField.value;
+                        const charLockValue = response.char_lock_value;
+                        const charLockLimitValue = response.char_lock_limit_value;
+                        const partModel = document.getElementById('part_model').value; // Get part_model
+
+                        // Validation checks for input value
+                        if (!inputValue.startsWith(charLockValue)) {
+                            alert(`Input must start with ${charLockValue}`);
+                            punchNoField.value = '';
+                            return;
+                        }
+
+                        const expectedLength = Number(charLockLimitValue);
+                        if (inputValue.length !== expectedLength) {
+                            alert(`Input must be exactly ${expectedLength} characters long.`);
+                            punchNoField.value = '';
+                            return;
+                        }
+
+                        // Step 1: Send POST request to check if the punch number exists
+                        fetch('/delete_measure_data/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCSRFToken()
+                            },
+                            body: JSON.stringify({ input_value: inputValue, part_model: partModel }) // Send part_model and comp_sr_no
+                        })
+                        .then(response => response.json()) // Ensure the response is JSON
+                        .then(data => {
+                            if (data.status === 'exists') {
+                                // Step 2: Show overwrite confirmation popup
+                                document.getElementById('error_message').innerText = data.message;
+                                document.getElementById('punch_overwrite').style.display = 'block';
+
+                                // Handle OK button click
+                                document.getElementById('overwrite_ok_button').onclick = function () {
+                                    document.getElementById('punch_overwrite_container').style.display = 'none';
+                                    // Show credentials input field
+                                    document.getElementById('punch_overwrite_credentials').style.display = 'block';
+                                };
+
+                                // Handle Cancel button click
+                                document.getElementById('overwrite_cancel_button').onclick = function () {
+                                    document.getElementById('punch_overwrite').style.display = 'none';
+                                    location.reload();
+                                };
+
+                                // Step 3: Handle deletion with credentials
+                                document.getElementById('punch_login').onclick = function () {
+                                    const userId = document.getElementById('userid_punch').value; // Get user ID from input field
+                                    const password = document.getElementById('password_punch').value; // Get password from input field
+
+                                    // Validate credentials before posting
+                                    if (userId !== 'admin' || password !== 'admin') {
+                                        alert('Invalid credentials. Please check username and password.');
+                                        return;
+                                    }
+                                    localStorage.setItem('punchValue', inputValue);
+                                    // Send delete request with credentials
+                                    fetch('/delete_measure_data/', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRFToken': getCSRFToken()
+                                        },
+                                        body: JSON.stringify({
+                                            input_value: inputValue,
+                                            part_model: partModel,
+                                            user_id: userId,
+                                            password: password
+                                        })
+                                    })
+                                    .then(response => response.json())
+                                    .then(deleteData => {
+                                        alert(deleteData.message); // Show success/error message
+                                        location.reload();
+                                        if (deleteData.success) {
+                                            document.getElementById('punch_overwrite').style.display = 'none';
+                                            $('#punch_overwrite').hide();
+                                            
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                        alert('Failed to delete punch number.');
+                                    });
+                                };
+                            } else {
+                                // Keep the button disabled and blurred if 'punch_no_value' is false
+                                $('#rest-btn').prop('disabled', false).css('filter', 'none');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Failed to process punch number.');
+                        });
+                    }
+                });
+
+
+                
+
+
+            } else {
+                // Keep the button disabled and blurred if 'punch_no_value' is false
+                $('#rest-btn').prop('disabled', false).css('filter', 'none');
+            }
+
+
 
 
             
 
+            // Display the 'part_name_value' in the input field with id 'part_no'
+            $('#part_no').val(response.part_name_value);
+
+            // Update the global responseData object
             responseData = {
                 partNameValue: response.part_name_value,
                 charLockValue: response.char_lock_value,
@@ -298,15 +486,23 @@ function sendPartModelToBackend(partModel) {
                 autoManArray: response.auto_man_array,
                 timerArray: response.timer_array,
                 digitsArray: response.digits_array,
-
-                
             };
 
             console.log("Response Data:", responseData);
 
+            // Update the global totalSteps variable
+            const stepNo = response.step_no_array;
+            totalSteps = Math.max(...stepNo); // Find the largest step number
+            console.log("Number of Steps:", totalSteps);
+
+            // Log the totalSteps after it has been updated
+            console.log("Global totalSteps (after update):", totalSteps);
+
             // Iterate through the parameter values and display all fields for each parameter
             const parameterValues = response.parameter_values;
             console.log("Step No:", response.step_no_array);
+
+           
 
             // Loop through response data and update the respective gauge elements
             for (let i = 0; i < response.parameter_name_array.length; i++) {
@@ -315,11 +511,9 @@ function sendPartModelToBackend(partModel) {
 
                 // Update parameter name
                 $('#para_name' + gaugeIndex).val(response.parameter_name_array[i]);
-                $('#lsl_' + gaugeIndex).val(response.lsl_array[i]);
-                $('#nominal_' + gaugeIndex).val(response.nominal_array[i]);
-                $('#usl_' + gaugeIndex).val(response.usl_array[i]);
-
-                
+                $('#lsl_' + gaugeIndex).val(`LSL: ${response.lsl_array[i]}`).css('color', 'purple');
+                $('#nominal_' + gaugeIndex).val(`NOM: ${response.nominal_array[i]}`);
+                $('#usl_' + gaugeIndex).val(`USL: ${response.usl_array[i]}`).css('color', 'purple');
                 // Call the `drawGauge` function and pass the nominal value for each gauge
                 drawGauge(
                     'gaugeCanvas' + gaugeIndex,
@@ -338,8 +532,93 @@ function sendPartModelToBackend(partModel) {
 }
 
 
-function getStoredData() {
-    console.log("Stored Data jjjjjjjjjjjjjjjjjjjjjjjjjjjjj:", responseData);
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Retrieve the punch value from localStorage
+    var savedPunchValue = localStorage.getItem('punchValue');
+    
+    if (savedPunchValue) {
+        // Set the punch value in the textarea
+        document.getElementById('punch_no').value = savedPunchValue;
+        
+        // Clear the localStorage value to avoid persisting it across multiple reloads
+        localStorage.removeItem('punchValue');
+    }
+
+    // Set focus on the punch_textarea
+    document.getElementById('punch_no').focus();
+});
+
+
+
+
+
+function getCSRFToken() {
+    const cookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+    return cookie ? cookie.split('=')[1] : '';
+}
+
+
+
+let displayOutputs = []; // Array to store displayOutput values for all steps
+let currentStep = 1;     // Initialize the current step to 1
+    // Example total steps (you can set this dynamically)
+
+// Wait for the DOM content to load
+document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('rest-btn');
+    const notificationBar = document.getElementById('notification_bar');
+    let isStart = true; // Tracks the current state of the button
+
+    button.addEventListener('click', () => {
+        if (isStart) {
+            // Start action triggered
+            console.log(`Start action triggered for Step ${currentStep}!`);
+            notificationBar.value = `MEASUREMENT IS STARTING FOR STEP ${currentStep}`;
+
+            button.innerHTML = `STOP[F5] - Step ${currentStep}`; // Update button text
+            button.id = 'stop-btn'; // Change button ID
+
+            // Call the function to start data collection for the current step
+            getStoredData(currentStep);
+
+        } else {
+            // Stop action triggered
+            console.log(`Stop action triggered for Step ${currentStep}!`);
+            notificationBar.value = `MEASUREMENT IS COMPLETED FOR STEP ${currentStep}`;
+
+            button.innerHTML = `START[F4] - Step ${currentStep + 1}`; // Update button text
+            button.id = 'start-btn'; // Change button ID
+
+            // Perform calculations for the current step
+            calculateMaxMinTir();
+
+            // Check if more steps remain
+            if (currentStep < totalSteps) {
+                currentStep++; // Move to the next step
+            } else {
+                console.log("All steps completed!");
+               
+                notificationBar.value = "YOU HAVE COMPLETED THE MEASUREMENT FOR THIS JOB. DO THE NEXT JOB.";
+    
+                button.innerHTML = "START[F4]"; // Reset to initial state
+                currentStep = 1; // Reset the step to 1
+            }
+        }
+        isStart = !isStart; // Toggle the state
+    });
+});
+
+
+
+
+
+
+
+
+function getStoredData(currentStep) {
+    console.log("Stored Data :", responseData);
 
     const parameterValues = responseData.parameterValues;
 
@@ -372,55 +651,29 @@ function getStoredData() {
         const d_value = parameter.d || 0;  // Default to 0 if d_value is not found
         const o1_value = parameter.o1 || 0;  // Default to 0 if o1_value is not found
 
-        // Call displaySerialData with the extracted values
-        displaySerialData(
-            parameterName,
-            probeNumber,
-            lowMaster,
-            highMaster,
-            lsl,
-            usl,
-            ltl,
-            utl,
-            stepNo,
-            autoMan,
-            timer,
-            digits,
-            e_value,
-            d_value,
-            o1_value
-        );
+        // Call displaySerialData only if the current step matches
+        if (stepNo === currentStep.toString()) {
+            displaySerialData(
+                parameterName,
+                probeNumber,
+                lowMaster,
+                highMaster,
+                lsl,
+                usl,
+                ltl,
+                utl,
+                stepNo,
+                autoMan,
+                timer,
+                digits,
+                e_value,
+                d_value,
+                o1_value
+            );
+        }
     
 
-    // Log each element in parameterValues
-    for (let i = 0; i < parameterValues.length; i++) {
-        console.log(`\nIndex [${i}]:`);
-        console.log(`Gauge: ${i + 1}`);
-        console.log("Parameter Details:", parameterValues[i]);
-        console.log("Parameter Name:", parameterValues[i].parameter_name);
-        console.log("E:", parameterValues[i].e);
-        console.log("D:", parameterValues[i].d);
-        console.log("O1:", parameterValues[i].o1);
-    }
-
-    // Log other response data arrays
-    for (let i = 0; i < responseData.parameterNameArray.length; i++) {
-        console.log(`\nIndex [${i}]:`);
-        console.log("Gauge:", i + 1);
-        console.log("Parameter Name:", responseData.parameterNameArray[i]);
-        console.log("Channel No:", responseData.channelNoArray[i]);
-        console.log("Low Master:", responseData.lowMasterArray[i]);
-        console.log("High Master:", responseData.highMasterArray[i]);
-        console.log("Nominal:", responseData.nominalArray[i]);
-        console.log("LSL:", responseData.lslArray[i]);
-        console.log("USL:", responseData.uslArray[i]);
-        console.log("LTL:", responseData.ltlArray[i]);
-        console.log("UTL:", responseData.utlArray[i]);
-        console.log("Step No:", responseData.stepNoArray[i]);
-        console.log("Auto Man:", responseData.autoManArray[i]);
-        console.log("Timer:", responseData.timerArray[i]);
-        console.log("Digits:", responseData.digitsArray[i]);
-    }
+    
 
     const textareaId = mapProbeToTextareaId(probeNumber); // Get the textarea ID using probeNumber
     console.log("textareaId:", textareaId);
@@ -433,6 +686,7 @@ function getStoredData() {
                         const textareaValue = (textarea.value.trim() === '' || isNaN(parseFloat(textarea.value))) ? 0 : parseFloat(textarea.value);
                         
                          // Call displaySerialData with the extracted values
+    if (stepNo === currentStep.toString()){
         displaySerialData(
             parameterName,
             probeNumber,
@@ -451,6 +705,7 @@ function getStoredData() {
             o1_value,
             textareaValue
         );
+     }
 });
 }
     }
@@ -465,101 +720,323 @@ let displayOutputsGauge1 = [];
 let displayOutputsGauge2 = [];
 let displayOutputsGauge3 = [];
 let displayOutputsGauge4 = [];
+let stopBtnListenerAdded = false;
+let dataSent = false;
 
 function displaySerialData(parameterName, probeNumber, lowMaster, highMaster, lsl, usl, ltl, utl, stepNo, autoMan, timer, digits, e_value, d_value, o1_value, textareaValue) {
     const parameterNameArray = responseData.parameterNameArray;
-    const canvasId = `gaugeCanvas${parameterNameArray.indexOf(parameterName) + 1}`; // Sequential mapping
+    const stepNoArray = responseData.stepNoArray;
 
-    const textareaId = mapProbeToTextareaId(probeNumber);
-    const textarea = document.getElementById(textareaId);
+    // console.log("stepNoArray", stepNoArray);
 
-    const newSerialData = (textarea && !isNaN(parseFloat(textarea.value))) ? parseFloat(textarea.value) : 0;
+    // Initialize the gaugeIndexes array for stepNo
+    const gaugeIndexes = [];
 
-    const numericEValue = parseFloat(e_value) || 0;
-    const numericDValue = parseFloat(d_value) || 0;
-    const numericO1Value = parseFloat(o1_value) || 0;
+    // Find indexes matching the current step
+    stepNoArray.forEach((step, index) => {
+        if (step === stepNo.toString()) { // Match the current step
+            gaugeIndexes.push(index);
+        }
+    });
 
-    let displayOutput = numericEValue + (newSerialData * numericDValue + numericO1Value);
-    if (isNaN(displayOutput)) {
-        console.error("displayOutput is not a valid number:", displayOutput);
+    // // Log the found gaugeIndexes for stepNo
+    // console.log(`gaugeIndexes for stepNo ${stepNo}`, gaugeIndexes);
+
+    // If there are no matching indexes for stepNo, return early
+    if (gaugeIndexes.length === 0) {
+        console.error(`No gauge index found for stepNo ${stepNo}`);
         return;
     }
 
-    displayOutput = parseFloat(displayOutput.toFixed(4));
+    let finalDisplayOutput = null;
 
-    // Store the displayOutput value in the respective gauge array dynamically
-    if (document.getElementById('stop-btn').innerHTML === "STOP[F5]") {
-        // Dynamically map the parameterName to the appropriate display array
-        const gaugeIndex = parameterNameArray.indexOf(parameterName);
-        if (gaugeIndex === 0) {
-            displayOutputsGauge1.push(displayOutput);
-        } else if (gaugeIndex === 1) {
-            displayOutputsGauge2.push(displayOutput);
-        } else if (gaugeIndex === 2) {
-            displayOutputsGauge3.push(displayOutput);
-        } else if (gaugeIndex === 3) {
-            displayOutputsGauge4.push(displayOutput);
+    // Process matching gaugeIndexes
+    gaugeIndexes.forEach((gaugeIndex) => {
+        console.log(`Processing gaugeIndex ${gaugeIndex} for Step ${stepNo}`);
+
+        const canvasId = `gaugeCanvas${gaugeIndex + 1}`;
+        const textareaId = mapProbeToTextareaId(probeNumber);
+        const textarea = document.getElementById(textareaId);
+
+        const newSerialData = (textarea && !isNaN(parseFloat(textarea.value))) ? parseFloat(textarea.value) : 0;
+        const numericEValue = parseFloat(e_value) || 0;
+        const numericDValue = parseFloat(d_value) || 0;
+        const numericO1Value = parseFloat(o1_value) || 0;
+
+        let displayOutput = numericEValue + (newSerialData * numericDValue + numericO1Value);
+        displayOutput = parseFloat(displayOutput.toFixed(4));
+
+        if (isNaN(displayOutput)) {
+            console.error("Invalid displayOutput:", displayOutput);
+            return;
+        }
+
+        finalDisplayOutput = displayOutput;
+
+        if (stepNo === currentStep.toString()) {
+            if (document.getElementById('stop-btn').innerHTML.includes("STOP")) {
+                if (gaugeIndex === 0) {
+                    displayOutputsGauge1.push(displayOutput);
+                } else if (gaugeIndex === 1) {
+                    displayOutputsGauge2.push(displayOutput);
+                } else if (gaugeIndex === 2) {
+                    displayOutputsGauge3.push(displayOutput);
+                } else if (gaugeIndex === 3) {
+                    displayOutputsGauge4.push(displayOutput);
+                } else {
+                    console.error("Invalid gauge name:", parameterName);
+                }
+            }
+
+            drawGauge(canvasId, numericEValue, lsl, usl, ltl, utl, displayOutput);
+        }
+    });
+
+    if (currentStep === totalSteps && !stopBtnListenerAdded) {
+    document.getElementById('stop-btn').addEventListener('click', function () {
+        // Your existing logic here
+   
+
+     // Calculate Max, Min, and TIR for all gauges
+     const ResultsArray = calculateMaxMinTir();
+        console.log("TIR ,MAX ,MIN Results Array:", ResultsArray);
+   
+        // Array to store final gauge values
+        const finalGaugeValues = [
+            displayOutputsGauge1[displayOutputsGauge1.length - 1] || 0,
+            displayOutputsGauge2[displayOutputsGauge2.length - 1] || 0,
+            displayOutputsGauge3[displayOutputsGauge3.length - 1] || 0,
+            displayOutputsGauge4[displayOutputsGauge4.length - 1] || 0
+        ];
+
+       
+
+          // Log the array to the console
+        console.log("Final Gauge Values Array :", finalGaugeValues);
+        
+
+        // Destructure the array for individual values
+        const [gauge0Final, gauge1Final, gauge2Final, gauge3Final] = finalGaugeValues;
+
+        const finalDecisions = [
+            determineDecision(gauge0Final, ltl, lsl, usl, utl),
+            determineDecision(gauge1Final, ltl, lsl, usl, utl),
+            determineDecision(gauge2Final, ltl, lsl, usl, utl),
+            determineDecision(gauge3Final, ltl, lsl, usl, utl),
+        ];
+
+        // Default overall status
+    let overallStatus = "ACCEPT"; 
+    let backgroundColor = "#0f0";  // Default background color for "ACCEPT"
+
+    // Check the decisions for "Reject" or "Rework"
+    if (finalDecisions.includes("Reject")) {
+        overallStatus = "REJECT";
+        backgroundColor = "red";  // Set background color to red for "Reject"
+    } else if (finalDecisions.includes("Rework")) {
+        overallStatus = "REWORK";
+        backgroundColor = "yellow";  // Set background color to yellow for "Rework"
+    }
+
+        console.log("Final Overall Status:", overallStatus);
+
+        // Display the overall status in the input field
+        const overallStatusInput = document.getElementById("overall_status");
+        if (overallStatusInput) {
+            overallStatusInput.value = overallStatus;
+            overallStatusInput.style.backgroundColor = backgroundColor;
         } else {
-            console.error("Invalid gauge name:", parameterName);
+            console.error("Overall status input field not found.");
+        }
+
+        // Call DataToSend with a 1-second delay, ensuring it is only called once
+        if (!dataSent) {
+                setTimeout(function() {
+                    DataToSend(finalGaugeValues, ResultsArray);
+                    dataSent = true;
+                }, 1000);  // 1000 milliseconds = 1 second
+            }
+ 
+    });
+ // Prevent multiple registrations by setting the flag to true
+ stopBtnListenerAdded = true;
+   
+}
+
+   
+}
+
+// Helper function to determine decision for a given output
+function determineDecision(displayOutput, ltl, lsl, usl, utl) {
+    if (displayOutput < ltl) {
+        return "Reject";
+    } else if (displayOutput >= ltl && displayOutput < lsl) {
+        return "Rework";
+    } else if (displayOutput >= lsl && displayOutput <= usl) {
+        return "Accept";
+    } else if (displayOutput > usl && displayOutput <= utl) {
+        return "Rework";
+    } else if (displayOutput > utl) {
+        return "Reject";
+    }
+}
+
+
+function DataToSend(finalGaugeValues,ResultsArray) {
+    // console.log("Stored Data in function data to send finalGaugeValues:", finalGaugeValues);
+    // console.log("Stored Data in function data to send ResultsArray:", ResultsArray);
+
+    const overallStatusInput = document.getElementById("overall_status").value;
+    const partModel = document.getElementById("part_model").value;
+    const partName = document.getElementById("part_no").value;
+    const date = document.getElementById("date_time").value;
+    const operator = document.getElementById("operator").value;
+    const shift = document.getElementById("shift").value;
+    const punchNo = document.getElementById("punch_no").value;
+
+    const parameterName = responseData.parameterNameArray;  
+    const lsl = responseData.lslArray;
+    const usl = responseData.uslArray;
+    const ltl = responseData.ltlArray;
+    const utl = responseData.utlArray;
+    const nominal = responseData.nominalArray;
+    const output = finalGaugeValues;
+     // Separate max, min, and tir
+     const maxValues = ResultsArray.map(item => item.max);
+    const minValues = ResultsArray.map(item => item.min);
+    const tirValues = ResultsArray.map(item => item.tir);
+       
+ // Combine the common values with the array values
+ let dataToSend = [];
+
+for (let i = 0; i < 4; i++) {
+    dataToSend.push({
+        date: date,
+        punchNo: punchNo,
+        partModel: partModel,
+        partName: partName,
+        operator: operator,
+        shift: shift,
+        parameterName: parameterName[i],
+        lsl: lsl[i],
+        usl: usl[i],
+        ltl: ltl[i],
+        utl: utl[i],
+        nominal: nominal[i],
+        output: output[i],  // Assuming finalGaugeValues is an array of length 4
+        max: maxValues[i],
+        min: minValues[i],
+        tir: tirValues[i],
+        overallStatusInput: overallStatusInput,
+    });
+}
+ console.log("the value which is send to the backend views.py finallllllllllllllllllllllllllllllllllllll",dataToSend)
+// Send the combined data to the backend using jQuery AJAX
+$.ajax({
+    url: '/measure_data/', // Replace with your Django view URL
+    type: 'POST',
+    headers: { 'X-CSRFToken': getCSRFToken() }, // Include CSRF token
+    data: JSON.stringify(dataToSend),
+    contentType: 'application/json',
+    success: function (response) {
+        console.log('Data successfully sent to the backend:', response);
+        showNotification('Data successfully sent to the backend!', true);
+        // Hide the notification after 3 seconds
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+    },
+    error: function (error) {
+        console.error('Error sending data to the backend:', error);
+        showNotification('Error sending data to the backend.', false);
+    }
+});
+}
+
+
+function showNotification(message, isSuccess) {
+    const notifyDiv = document.querySelector('.notify');
+    notifyDiv.innerHTML = message; // Set the message
+    notifyDiv.style.display = 'block'; // Show the notification
+    notifyDiv.style.backgroundColor = isSuccess ? 'green' : 'red'; // Set background color
+    notifyDiv.style.color = 'white'; // Set text color
+    notifyDiv.style.padding = '10px';
+    notifyDiv.style.borderRadius = '5px';
+    notifyDiv.style.marginTop = '10px';
+    notifyDiv.style.textAlign = 'center';
+
+    // Hide the notification after 3 seconds
+    setTimeout(() => {
+        notifyDiv.style.display = 'none';
+    }, 3000);
+}
+
+  
+// Helper function to get CSRF token from the browser's cookies
+function getCSRFToken() {
+    const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken'))
+        ?.split('=')[1];
+    return csrfToken;
+}
+
+
+
+
+function calculateMaxMinTir() {
+    const results = [];
+
+    // Function to calculate the TIR and ensure it's displayed with 4 digits
+    function calculateTir(gaugeValues) {
+        if (gaugeValues.length > 0) {
+            const max = Math.max(...gaugeValues);
+            const min = Math.min(...gaugeValues);
+            const tir = (max - min) / 2;
+
+            // Ensure the TIR is displayed with 4 digits
+            return {
+                max: max.toFixed(4),
+                min: min.toFixed(4),
+                tir: tir.toFixed(4),
+            };
+        } else {
+            return { max: 0, min: 0, tir: 0 };
         }
     }
 
-    // Draw the gauge (this function is not fully implemented here, but it will work as expected)
-    drawGauge(canvasId, numericEValue, lsl, usl, ltl, utl, displayOutput);
-}
+    // Calculate for each gauge
+    const result1 = calculateTir(displayOutputsGauge1);
+    const result2 = calculateTir(displayOutputsGauge2);
+    const result3 = calculateTir(displayOutputsGauge3);
+    const result4 = calculateTir(displayOutputsGauge4);
 
-function calculateMaxMinTir() {
-    // Calculate for gauge 1
-    if (displayOutputsGauge1.length > 0) {
-        const max1 = Math.max(...displayOutputsGauge1);
-        const min1 = Math.min(...displayOutputsGauge1);
-        const tir1 = (max1 - min1) / 2;
+    // Update the display
+    document.getElementById('max1').value = result1.max;
+    document.getElementById('min1').value = result1.min;
+    document.getElementById('tir1').value = result1.tir;
 
-        document.getElementById('max1').value = max1.toFixed(4);
-        document.getElementById('min1').value = min1.toFixed(4);
-        document.getElementById('tir1').value = tir1.toFixed(4);
+    document.getElementById('max2').value = result2.max;
+    document.getElementById('min2').value = result2.min;
+    document.getElementById('tir2').value = result2.tir;
 
-        console.log(`Gauge 1 - Max: ${max1}, Min: ${min1}, TIR: ${tir1}`);
-    }
+    document.getElementById('max3').value = result3.max;
+    document.getElementById('min3').value = result3.min;
+    document.getElementById('tir3').value = result3.tir;
 
-    // Calculate for gauge 2
-    if (displayOutputsGauge2.length > 0) {
-        const max2 = Math.max(...displayOutputsGauge2);
-        const min2 = Math.min(...displayOutputsGauge2);
-        const tir2 = (max2 - min2) / 2;
+    document.getElementById('max4').value = result4.max;
+    document.getElementById('min4').value = result4.min;
+    document.getElementById('tir4').value = result4.tir;
 
-        document.getElementById('max2').value = max2.toFixed(4);
-        document.getElementById('min2').value = min2.toFixed(4);
-        document.getElementById('tir2').value = tir2.toFixed(4);
+    // Push the results for backend without forcing the fixed format (storing original values)
+    results.push(
+        { max: parseFloat(result1.max), min: parseFloat(result1.min), tir: parseFloat(result1.tir) },
+        { max: parseFloat(result2.max), min: parseFloat(result2.min), tir: parseFloat(result2.tir) },
+        { max: parseFloat(result3.max), min: parseFloat(result3.min), tir: parseFloat(result3.tir) },
+        { max: parseFloat(result4.max), min: parseFloat(result4.min), tir: parseFloat(result4.tir) }
+    );
 
-        console.log(`Gauge 2 - Max: ${max2}, Min: ${min2}, TIR: ${tir2}`);
-    }
-
-    // Calculate for gauge 3
-    if (displayOutputsGauge3.length > 0) {
-        const max3 = Math.max(...displayOutputsGauge3);
-        const min3 = Math.min(...displayOutputsGauge3);
-        const tir3 = (max3 - min3) / 2;
-
-        document.getElementById('max3').value = max3.toFixed(4);
-        document.getElementById('min3').value = min3.toFixed(4);
-        document.getElementById('tir3').value = tir3.toFixed(4);
-
-        console.log(`Gauge 3 - Max: ${max3}, Min: ${min3}, TIR: ${tir3}`);
-    }
-
-    // Calculate for gauge 4
-    if (displayOutputsGauge4.length > 0) {
-        const max4 = Math.max(...displayOutputsGauge4);
-        const min4 = Math.min(...displayOutputsGauge4);
-        const tir4 = (max4 - min4) / 2;
-
-        document.getElementById('max4').value = max4.toFixed(4);
-        document.getElementById('min4').value = min4.toFixed(4);
-        document.getElementById('tir4').value = tir4.toFixed(4);
-
-        console.log(`Gauge 4 - Max: ${max4}, Min: ${min4}, TIR: ${tir4}`);
-    }
+    return results; // Return the array of results (with values stored as floats)
 }
 
 
@@ -602,6 +1079,36 @@ $(document).ready(function () {
 });
 
 
+document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("report_btn").addEventListener("click", function () {
+            const partName = document.getElementById("part_model").value.trim();
+
+            if (!partName) {
+                alert("Please enter a part model!");
+                return;
+            }
+
+            // Redirect to the report/ page with the part_model as a query parameter
+            const redirectUrl = `/report/?part_model=${encodeURIComponent(partName)}`;
+            window.location.href = redirectUrl;
+        });
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("spc_btn").addEventListener("click", function () {
+            const partName = document.getElementById("part_model").value.trim();
+
+            if (!partName) {
+                alert("Please enter a part model!");
+                return;
+            }
+
+            // Redirect to the report/ page with the part_model as a query parameter
+            const redirectUrl = `/spc/?part_model=${encodeURIComponent(partName)}`;
+            window.location.href = redirectUrl;
+        });
+    });
 
 
 
@@ -876,11 +1383,66 @@ function drawReadingText(ctx, x, y, displayOutput, nominal, lsl, usl, ltl, utl, 
 }
 
 
+var shiftValues = JSON.parse('{{ shift_time|escapejs }}');
+console.log('Shift values:', shiftValues);
+
+var operator = JSON.parse('{{ user_name|escapejs }}');
+console.log('operator name is this values:', operator);
+
+if (Array.isArray(operator) && operator.length > 0) {
+        document.getElementById('operator').value = operator[0].username;
+    } else {
+        console.error('No operator data found');
+    }
+
+    
+// Function to convert 12-hour time to 24-hour format
+function convertTo24Hour(timeString) {
+    let [time, modifier] = timeString.trim().split(' ');
+    let [hours, minutes, seconds] = time.split(':');
+    if (modifier === 'PM' && hours !== '12') {
+        hours = parseInt(hours, 10) + 12;
+    }
+    if (modifier === 'AM' && hours === '12') {
+        hours = 0;
+    }
+    return `${hours.toString().padStart(2, '0')}:${minutes}:${seconds}`;
+}
+
+// Function to determine and update the shift name based on the current time
+function setDateTimes() {
+    let now = new Date();
+    let currentTime = now.toTimeString().split(' ')[0]; // 'HH:MM:SS'
+    let currentDate = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
+    // Determine the shift based on the current time
+    let shiftName = null;
+    for (let i = shiftValues.length - 1; i >= 0; i--) {
+        let shift = shiftValues[i];
+        let shiftTime = shift.shift_time.trim();  // Trim whitespace from shift_time
+        let shift24HourTime = convertTo24Hour(shiftTime);
+
+        if (currentTime >= shift24HourTime) {
+            shiftName = shift.shift;  // Set the shift name (e.g., "SHIFT-1")
+            break;
+        }
+    }
+
+    // If no shift is found (e.g., if the current time is before all shifts), default to the first shift
+    if (!shiftName) {
+        shiftName = shiftValues[0].shift; // Default to the first shift
+    }
+
+    // Set the shift name in the input box
+    let fromDateElements = document.getElementsByClassName('shift-name');
+    for (let element of fromDateElements) {
+        element.value = shiftName;  // Set the shift name in the input box
+    }
 
 
-/////////////////////////////////////////////////////////////
+}
 
-
+// Function to update the current date and time in the input box and check for shift change
 function updateClock() {
     // Get the current date and time
     var currentDate = new Date();
@@ -909,12 +1471,58 @@ function updateClock() {
     // Set the value of the input box
     document.getElementById("date_time").value = currentDateFormatted + ' ' + currentTime;
 
+    // Check if current time matches the next shift time
+    checkShiftNotification(currentTime);
+
     // Call this function again after 1 second
     setTimeout(updateClock, 1000);
 }
 
+// Function to check if the current time matches the next shift time
+function checkShiftNotification(currentTime) {
+    let shiftTime = null;
+    for (let i = 0; i < shiftValues.length; i++) {
+        let shift = shiftValues[i];
+        let shiftTime24Hour = convertTo24Hour(shift.shift_time);
+        if (currentTime >= shiftTime24Hour) {
+            shiftTime = shift.shift_time;
+            break;
+        }
+    }
+
+    // If shift time is found and matches the current time, show notification
+    if (shiftTime && currentTime === shiftTime) {
+        showShiftNotification();
+    }
+}
+
+// Function to display shift change notification
+function showShiftNotification() {
+    let notification = document.createElement('div');
+    notification.id = 'shift-notification';
+    notification.innerText = 'It\'s time to switch to the next shift!';
+    notification.style.position = 'fixed';
+    notification.style.top = '10px';
+    notification.style.right = '10px';
+    notification.style.backgroundColor = 'green';
+    notification.style.color = 'white';
+    notification.style.padding = '10px';
+    notification.style.borderRadius = '5px';
+    document.body.appendChild(notification);
+
+    // Remove the notification after 3 seconds and refresh the page
+    setTimeout(function() {
+        notification.style.display = 'none';
+        location.reload(); // Refresh the page
+    }, 3000);
+}
+
 // Call the function to initially display the clock
-updateClock();        
+updateClock();
+
+// Call setDateTimes every second to update the shift name
+setInterval(setDateTimes, 1000);
+        
 
     </script>
     

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
 
     <title>Report</title>  
 </head>
@@ -29,9 +31,11 @@ body {
     border: 1px solid black;
 }
 .container-2 {
-    height: 85%;
     width: 100%;
     border: 1px solid black;
+    overflow: hidden;  /* Hides overflow content */
+    height: 80vh;      /* Set a height for the container */
+    position: relative;
 }
 
 .container-1-1 {
@@ -45,7 +49,7 @@ body {
 
 
 #exit_btn {
-   margin-left:15% ;
+   margin-left:8% ;
     background-color: #ff4c4c; /* Example: red background */
     border: none;
     padding: 10px;
@@ -55,7 +59,7 @@ body {
 }
 
 #exit_icon {
-    font-size: 35px; /* Adjust the icon size */
+    font-size: 2vw; /* Adjust the icon size */
     color: white; /* Set the icon color */
 }
 
@@ -71,45 +75,75 @@ body {
 
 .container-1-2 label ,.container-1-1  label{
     font-weight: bold;
-    font-size: 20px;
-    margin-left: 2%;
+    font-size: 1.2vw;
+    margin-left: 1%;
 }
 
 input[type="datetime-local"] {
-    width: 15%;
-    font-size: 18px;
+    width: 18%;
+    font-size: 1vw;
     font-weight: bold;
     margin-left: 1%;
 }
 
 select{
-    width: 15%;
-    font-size: 18px;
+    width: 10%;
+    font-size: 1vw;
     font-weight: bold;
+}
+
+#part_model{
+    width: 17%;
+    margin-left: 3%;
+    font-weight: bold;
+    font-size: 2vw;
+    text-align: center;
+}
+
+#total_count{
+    width: 10%;
     margin-left: 1%;
+    font-weight: bold;
+    font-size: 2vw;
+    text-align: center;
+    background-color: orange;
+}
+#clock-box{
+    width: 17%;
+    margin-left: 2%;
+    font-weight: bold;
+    font-size: 1.3vw;
+    text-align: center;
 }
 
 #status_select {
     color: black; /* Default text color */
+    font-size: 1vw;
+    text-align: center;
 }
 
 #status_select option {
     color: black; /* Default option color */
     font-weight: bold;
-    font-size: 18px;
+    font-size: 1vw;
+    text-align: center;
+}
+#shift_select option {
+    color: black; /* Default option color */
+    font-weight: bold;
+    font-size: 1vw;
+    text-align: center;
 }
 
-#status_select option[value="accept"] {
-    color: green;
+
+#mode option {
+    color: black; /* Default option color */
+    font-weight: bold;
+    font-size: 1vw;
+    text-align: center;
 }
 
-#status_select option[value="reject"] {
-    color: red;
-}
 
-#status_select option[value="rework"] {
-    color: goldenrod;
-}
 
 
 button#search_btn {
@@ -118,7 +152,7 @@ button#search_btn {
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
-    margin-left:15% ;
+   margin-left: 2%;
     width: 5%;
     height: 100%;
 }
@@ -128,7 +162,7 @@ button#search_btn:hover {
 }
 
 #search_icon {
-    font-size: 30px; /* Adjust icon size */
+    font-size: 2vw; /* Adjust icon size */
     color: white; /* Icon color */
 }
 
@@ -139,7 +173,7 @@ button#download_btn {
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
-    margin-left:15% ;
+    margin-left:1% ;
     width: 5%;
     height: 100%;
 }
@@ -149,7 +183,7 @@ button#download_btn:hover {
 }
 
 #download_icon {
-    font-size: 30px; /* Adjust icon size */
+    font-size: 2vw; /* Adjust icon size */
     color: #333; /* Icon color */
 }
 
@@ -165,24 +199,31 @@ button#left_arrow_btn,button#right_arrow_btn {
 }
 
 button#left_arrow_btn{
-    margin-left: 5%;
+    margin-left: 2%;
+}
+button#right_arrow_btn{
+    margin-left: 1%;
 }
 button#left_arrow_btn:hover ,button#right_arrow_btn:hover  {
     background-color: rgb(199, 18, 199); /* Slightly darker on hover */
 }
 
 #left_arrow_icon, #right_arrow_icon {
-    font-size: 30px; /* Adjust icon size */
+    font-size: 2vw; /* Adjust icon size */
     color: white; /* Icon color */
 }
 
-table {
+    table { 
+            table-layout: fixed;
             border-collapse: collapse;
             width: 100%;
-            height: 100%;
+            max-height: 80vh;
             border: 2px solid black;
            
         }
+
+
+       
 
         th, td {
             text-align: center;
@@ -190,9 +231,9 @@ table {
         }
 
         thead {
-            height:13%;
+            height:10%;
             width: 100%;
-            font-size: 16px;
+            font-size: 1vw;
             font-weight: bold;
             text-align: center;
             color: white;
@@ -203,7 +244,7 @@ table {
             height: 90%;
             width: 90%;
             box-sizing: border-box;
-            font-size: 17px;
+            font-size: 1vw;
             font-weight: bold;
             text-align: center;
             outline: none;
@@ -211,18 +252,50 @@ table {
             
         }
 
+
+
+
+        /* Set a standard height for all rows */
+table tr {
+    height: 2em; /* This ensures the height is relative to the font size */
+}
+
+/* Adjust the width of the first column */
+table td:nth-child(1), table th:nth-child(1) {
+    width: 10%; /* 10% of the table's total width */
+}
+
+/* Adjust the width of columns 2 and 3 */
+table td:nth-child(2), table th:nth-child(2) {
+    width: 35%; /* 35% of the table's total width */
+}
+
+table td:nth-child(3), table th:nth-child(3) {
+    width: 35%; /* 35% of the table's total width */
+}
+
+/* Ensure the remaining columns have the same width */
+table td:nth-child(n+4), table th:nth-child(n+4) {
+    width: 20%; /* The remaining 20% of the table's total width */
+}
+
+
 </style>
 
 <div class="container-1">
+    
     <div class="container-1-1">
-        <label for="start_date">START DATE:</label>
-        <input type="datetime-local" id="start_date" >
-        <label for="shift_select">SHIFT SELECT:</label>
-        <select id="shift_select" style="margin-left: 2%;" ></select>
+        <label for="from_date" >START DATE:</label>
+        <input type="datetime-local" class="from-date" id="from_date" name="from_date">
 
-        <button type="submit" id="search_btn">
-            <i class="fas fa-search" id="search_icon"></i>
-        </button>
+        
+        <input type="text" id="part_model" >
+
+        <label for="total_count" >COUNT:</label>
+        <input type="text" id="total_count" >
+
+        <input type="text" id="clock-box" >
+
         
         <button type="submit" id="exit_btn">
             <i class="fas fa-times" id="exit_icon"></i>
@@ -232,16 +305,43 @@ table {
        
     </div>
     <div class="container-1-2">
-        <label for="end_date">END DATE :</label>
-        <input type="datetime-local" id="end_date" style=" margin-left: 2%;">
+ 
+        <label for="to_date">END DATE :</label>
+        <input type="datetime-local" class="to-date"  id="to_date" name="to_date" style=" margin-left: 2%;">
 
-        <label for="status_select">STATUS SELECT:</label>
-        <select id="status_select">
-            <option value="" disabled selected>Select the status</option>
-            <option value="accept" id="accept">ACCEPT</option>
-            <option value="reject" id="reject">REJECT</option>
-            <option value="rework" id="rework">REWORK</option>
+
+
+        
+
+        <label for="shift_select">SHIFT:</label>
+        <select id="shift_select" name="shift">
+            <option value="ALL">ALL</option>
+            {% for shift in shift_name %}
+                <option value="{{ shift }}">{{ shift }}</option>
+            {% endfor %}
         </select>
+
+
+
+        <label for="status_select">STATUS:</label>
+        <select id="status_select">
+            <option value="ALL" >ALL</option>
+            <option value="ACCEPT" id="accept">ACCEPT</option>
+            <option value="REJECT" id="reject">REJECT</option>
+            <option value="REWORK" id="rework">REWORK</option>
+        </select>
+
+        <label for="mode">MODE:</label>
+        <select id="mode">
+            <option value="readings" >READINGS</option>
+            <option value="max" id="max">MAX</option>
+            <option value="min" id="min">MIN</option>
+            <option value="tir" id="tir">TIR</option>
+        </select>
+        
+        <button type="submit" id="search_btn">
+            <i class="fas fa-search" id="search_icon"></i>
+        </button>
 
         <button type="button" id="download_btn">
             <i class="fas fa-download" id="download_icon"></i>
@@ -261,44 +361,190 @@ table {
        
     </div>
     </div>
-    <div class="container-2">
-        <table border="1" >
-            <thead>
-                <tr>
-                    <th style="width: 2%;">SR.NO</th>
-                    <th style="width: 7%;">DATE</th>
-                    <th style="width: 13%;">PUNCH NO</th>
-                    <th style="width:8%;">PART MODEL</th>
-                    <th style="width: 8%;">PARAMETER NAME</th>
-                    <th style="width: 10%;">OPERATOR</th>
-                    <th style="width: 5%;">SHIFT</th>
-                    <th style="width: 5%;">MAX</th>
-                    <th style="width: 5%;">MIN</th>
-                    <th style="width: 5%;">CUR</th>
-                    <th style="width: 5%;">TIR</th>
-                    <th style="width: 5%;">STATUS</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody-1">
-                
-                <tr>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                    <td><input type="text" style="width: 100%;" /></td>
-                </tr>
-               
-                
-            </tbody>
+    <div class="container-2" id="container-2"style="overflow-y: auto;" >
+        <table id="myTable" style="overflow-y: auto;">
+            <!-- Table headers and body will go here -->
         </table>
     </div>
+
+    <script>
+       
+        
+
+
+
+
+
+
+
+
+
+        // Function to get query parameters from the URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Retrieve the 'part_model' value and set it in the input box
+        document.addEventListener("DOMContentLoaded", function () {
+            const partModel = getQueryParam("part_model");
+            if (partModel) {
+                document.getElementById("part_model").value = partModel;
+            } else {
+                document.getElementById("part_model").placeholder = "No part model provided.";
+            }
+        });
+
+
+
+
+
+      // Function to update the clock
+function updateClock() {
+  var now = new Date();
+  var hours = now.getHours();
+  var minutes = now.getMinutes();
+  var seconds = now.getSeconds();
+  var day = now.getDate();
+  var month = now.getMonth() + 1; // January is 0, so we add 1 to get the actual month
+  var year = now.getFullYear();
+
+  // Format the time string
+  var ampm = hours >= 12 ? 'PM' : 'AM'; // Determine if it's AM or PM
+  hours = hours % 12; // Convert to 12-hour format
+  hours = hours ? hours : 12; // Handle midnight (0 hours)
+  var timeString = hours + ":" + minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0') + " " + ampm;
+
+  // Format the date string
+  var dateString = day.toString().padStart(2, '0') + "-" + month.toString().padStart(2, '0') + "-" + year;
+
+  var dateTimeString = timeString + " / " + dateString;
+
+  // Update the clock display
+  document.getElementById("clock-box").value = dateTimeString;
+
+  // Call this function again after 1 second
+  setTimeout(updateClock, 1000);
+}
+
+// Call the function to initially display the clock
+updateClock();
+
+
+
+
+// Parse the shift values from your JSON object
+var shiftValues = JSON.parse('{{ shift_values|escapejs }}');
+        console.log('Shift values:', shiftValues);
+
+        // Helper function to convert 12-hour time format to 24-hour format
+        function convertTo24Hour(timeString) {
+            let [time, modifier] = timeString.trim().split(' ');
+            let [hours, minutes, seconds] = time.split(':');
+            if (modifier === 'PM' && hours !== '12') {
+                hours = parseInt(hours, 10) + 12;
+            }
+            if (modifier === 'AM' && hours === '12') {
+                hours = 0;
+            }
+            return `${hours.toString().padStart(2, '0')}:${minutes}:${seconds}`;
+        }
+
+        // Function to determine the from-date based on the current time
+        function setDateTimes() {
+            let now = new Date();
+            let currentTime = now.toTimeString().split(' ')[0]; // 'HH:MM:SS'
+            let currentDate = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
+            // Remove seconds from the current time for to-date
+            let [hours, minutes] = currentTime.split(':');
+            let toDateTime = `${currentDate}T${hours}:${minutes}`;
+
+            // Set the to-date input
+            let toDateElements = document.getElementsByClassName('to-date');
+            for (let element of toDateElements) {
+                element.value = toDateTime;
+            }
+
+            // Determine the from-date based on the shift values
+            let fromDateTime = null;
+            for (let i = shiftValues.length - 1; i >= 0; i--) {
+                let [shiftName, shiftTime] = shiftValues[i];
+                let shift24HourTime = convertTo24Hour(shiftTime);
+                if (currentTime >= shift24HourTime) {
+                    fromDateTime = `${currentDate}T${shift24HourTime}`;
+                    break;
+                }
+            }
+            if (!fromDateTime) {
+                fromDateTime = `${currentDate}T00:00:00`; // Default to start of the day if no shift is found
+            }
+
+            // Set the from-date input
+            let fromDateElements = document.getElementsByClassName('from-date');
+            for (let element of fromDateElements) {
+                element.value = fromDateTime;
+            }
+
+            console.log('Current time:', currentTime);
+            console.log('To date-time (without seconds):', toDateTime);
+            console.log('From date-time:', fromDateTime);
+        }
+
+        setDateTimes();
+
+
+        $(document).ready(function () {
+            $('#search_btn').click(function (event) {
+                event.preventDefault(); // Prevent default form submission
+        
+                // Collect values from the input fields
+                const fromDate = $('#from_date').val();
+                const partModel = $('#part_model').val();
+                const mode = $('#mode').val();
+                const toDate = $('#to_date').val();
+                const shift = $('#shift_select').val();
+                const status = $('#status_select').val();
+        
+                // Encapsulate all data in a single object
+                const payload = {
+                    from_date: fromDate,
+                    part_model: partModel,
+                    mode: mode,
+                    to_date: toDate,
+                    shift: shift,
+                    status: status,
+                };
+                console.log("the value which is send to the backend:",payload)
+        
+                // AJAX request to send data to the backend
+                $.ajax({
+                    url: '/report/', // Replace with your backend URL
+                    method: 'POST',
+                    data: {
+                        data: JSON.stringify(payload), // Send all data as a single JSON string
+                        csrfmiddlewaretoken: '{{ csrf_token }}' // Include CSRF token
+                    },
+                    success: function (response) {
+                        $('#myTable').html(response.table_html);
+                        $('#total_count').val(response.total_count);
+                        console.log("the html value is:",response.table_html)
+                        // Handle success
+                        
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle error
+                        console.error('Error sending data:', error);
+                        alert('Failed to submit data. Please try again.');
+                    }
+                });
+            });
+        });
+
+
+        
+       
+
+    </script>
 </body>
 </html>

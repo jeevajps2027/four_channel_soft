@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.urls import path,include
 from django.conf.urls.static import static
-from .views import measurement,master,parameter,report,comport,data,login
+from .views import measurement,master,parameter,report,comport,data,login,measure_data,delete_measure_data,measurement_count,spc
 
 
 urlpatterns = [
@@ -12,6 +12,10 @@ urlpatterns = [
     path('report/',report,name="report"),
     path('data/',data,name="data"),
     path('comport/',comport,name="comport"),
+    path('measure_data/',measure_data,name="measure_data"),
+    path('delete_measure_data/',delete_measure_data,name="delete_measure_data"),
+    path('measurement_count/',measurement_count,name="measurement_count"),
+    path('spc/',spc,name="spc"),
     ]
 
 if settings.DEBUG:
