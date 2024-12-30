@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/report.css' %}">
+
+    <title>Report</title>  
+</head>
+<body>
+
+<div class="container-1">
+    
+    <div class="container-1-1">
+        <label for="from_date" >START DATE:</label>
+        <input type="datetime-local" class="from-date" id="from_date" name="from_date">
+
+        
+        <input type="text" id="part_model" >
+
+        <label for="total_count" >COUNT:</label>
+        <input type="text" id="total_count" >
+
+        <input type="text" id="clock-box" >
+
+        
+        <button type="submit" id="exit_btn">
+            <i class="fas fa-times" id="exit_icon"></i>
+        </button>
+
+
+       
+    </div>
+    <div class="container-1-2">
+ 
+        <label for="to_date">END DATE :</label>
+        <input type="datetime-local" class="to-date"  id="to_date" name="to_date" style=" margin-left: 2%;">
+
+
+
+        
+
+        <label for="shift_select">SHIFT:</label>
+        <select id="shift_select" name="shift">
+            <option value="ALL">ALL</option>
+            {% for shift in shift_name %}
+                <option value="{{ shift }}">{{ shift }}</option>
+            {% endfor %}
+        </select>
+
+
+
+        <label for="status_select">STATUS:</label>
+        <select id="status_select">
+            <option value="ALL" >ALL</option>
+            <option value="ACCEPT" id="accept">ACCEPT</option>
+            <option value="REJECT" id="reject">REJECT</option>
+            <option value="REWORK" id="rework">REWORK</option>
+        </select>
+
+        <label for="mode">MODE:</label>
+        <select id="mode">
+            <option value="readings" >READINGS</option>
+            <option value="max" id="max">MAX</option>
+            <option value="min" id="min">MIN</option>
+            <option value="tir" id="tir">TIR</option>
+        </select>
+        
+        <button type="submit" id="search_btn">
+            <i class="fas fa-search" id="search_icon"></i>
+        </button>
+
+        <button type="button" id="download_btn">
+            <i class="fas fa-download" id="download_icon"></i>
+        </button>
+
+        <button type="button" id="left_arrow_btn">
+            <i class="fas fa-arrow-left" id="left_arrow_icon"></i>
+        </button>
+
+        <button type="button" id="right_arrow_btn">
+            <i class="fas fa-arrow-right" id="right_arrow_icon"></i>
+        </button>
+        
+        
+        
+        
+       
+    </div>
+    </div>
+    <div class="container-2" id="container-2">
+        <table id="myTable">
+            <!-- Table headers and body will go here -->
+        </table>
+    </div>
+
+    <script>
+       
+        
+
+
+
+
+
+
+
+
+
+        // Function to get query parameters from the URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Retrieve the 'part_model' value and set it in the input box
+        document.addEventListener("DOMContentLoaded", function () {
+            const partModel = getQueryParam("part_model");
+            if (partModel) {
+                document.getElementById("part_model").value = partModel;
+            } else {
+                document.getElementById("part_model").placeholder = "No part model provided.";
+            }
+        });
+
+
+
+
+
+      // Function to update the clock
+function updateClock() {
+  var now = new Date();
+  var hours = now.getHours();
+  var minutes = now.getMinutes();
+  var seconds = now.getSeconds();
+  var day = now.getDate();
+  var month = now.getMonth() + 1; // January is 0, so we add 1 to get the actual month
+  var year = now.getFullYear();
+
+  // Format the time string
+  var ampm = hours >= 12 ? 'PM' : 'AM'; // Determine if it's AM or PM
+  hours = hours % 12; // Convert to 12-hour format
+  hours = hours ? hours : 12; // Handle midnight (0 hours)
+  var timeString = hours + ":" + minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0') + " " + ampm;
+
+  // Format the date string
+  var dateString = day.toString().padStart(2, '0') + "-" + month.toString().padStart(2, '0') + "-" + year;
+
+  var dateTimeString = timeString + " / " + dateString;
+
+  // Update the clock display
+  document.getElementById("clock-box").value = dateTimeString;
+
+  // Call this function again after 1 second
+  setTimeout(updateClock, 1000);
+}
+
+// Call the function to initially display the clock
+updateClock();
+
+
+
+
+// Parse the shift values from your JSON object
+var shiftValues = JSON.parse('{{ shift_values|escapejs }}');
+        console.log('Shift values:', shiftValues);
+
+        // Helper function to convert 12-hour time format to 24-hour format
+        function convertTo24Hour(timeString) {
+            let [time, modifier] = timeString.trim().split(' ');
+            let [hours, minutes, seconds] = time.split(':');
+            if (modifier === 'PM' && hours !== '12') {
+                hours = parseInt(hours, 10) + 12;
+            }
+            if (modifier === 'AM' && hours === '12') {
+                hours = 0;
+            }
+            return `${hours.toString().padStart(2, '0')}:${minutes}:${seconds}`;
+        }
+
+        // Function to determine the from-date based on the current time
+        function setDateTimes() {
+            let now = new Date();
+            let currentTime = now.toTimeString().split(' ')[0]; // 'HH:MM:SS'
+            let currentDate = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
+            // Remove seconds from the current time for to-date
+            let [hours, minutes] = currentTime.split(':');
+            let toDateTime = `${currentDate}T${hours}:${minutes}`;
+
+            // Set the to-date input
+            let toDateElements = document.getElementsByClassName('to-date');
+            for (let element of toDateElements) {
+                element.value = toDateTime;
+            }
+
+            // Determine the from-date based on the shift values
+            let fromDateTime = null;
+            for (let i = shiftValues.length - 1; i >= 0; i--) {
+                let [shiftName, shiftTime] = shiftValues[i];
+                let shift24HourTime = convertTo24Hour(shiftTime);
+                if (currentTime >= shift24HourTime) {
+                    fromDateTime = `${currentDate}T${shift24HourTime}`;
+                    break;
+                }
+            }
+            if (!fromDateTime) {
+                fromDateTime = `${currentDate}T00:00:00`; // Default to start of the day if no shift is found
+            }
+
+            // Set the from-date input
+            let fromDateElements = document.getElementsByClassName('from-date');
+            for (let element of fromDateElements) {
+                element.value = fromDateTime;
+            }
+
+            console.log('Current time:', currentTime);
+            console.log('To date-time (without seconds):', toDateTime);
+            console.log('From date-time:', fromDateTime);
+        }
+
+        setDateTimes();
+
+
+        $(document).ready(function () {
+    let currentPage = 1; // Current page
+    const rowsPerPage = 15; // Rows per page
+    let totalRows = 0; // Total rows count
+    let tableData = []; // Store fetched data
+
+    // Search button click handler
+    $('#search_btn').click(function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Collect values from the input fields
+        const fromDate = $('#from_date').val();
+        const partModel = $('#part_model').val();
+        const mode = $('#mode').val();
+        const toDate = $('#to_date').val();
+        const shift = $('#shift_select').val();
+        const status = $('#status_select').val();
+
+        // Encapsulate all data in a single object
+        const payload = {
+            from_date: fromDate,
+            part_model: partModel,
+            mode: mode,
+            to_date: toDate,
+            shift: shift,
+            status: status,
+        };
+        console.log("the value which is send to the backend:", payload);
+
+        // AJAX request to send data to the backend
+        $.ajax({
+            url: '/report/', // Replace with your backend URL
+            method: 'POST',
+            data: {
+                data: JSON.stringify(payload), // Send all data as a single JSON string
+                csrfmiddlewaretoken: '{{ csrf_token }}' // Include CSRF token
+            },
+            success: function (response) {
+                tableData = response.table_html; // Store table data
+                totalRows = response.total_count; // Get total count
+                $('#total_count').val(totalRows);
+                renderTable(currentPage); // Render first page
+                console.log("the html value is:", response.table_html);
+            },
+            error: function (xhr, status, error) {
+                // Handle error
+                console.error('Error sending data:', error);
+                alert('Failed to submit data. Please try again.');
+            }
+        });
+    });
+
+    // Render table based on the page
+    function renderTable(page) {
+    const startIndex = (page - 1) * rowsPerPage;
+    const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
+
+    // Parse tableData into rows
+    const tempDiv = document.createElement('div'); // Temporary container
+    tempDiv.innerHTML = tableData; // Insert the HTML string
+    const rows = Array.from(tempDiv.querySelectorAll('tr')); // Extract all rows
+
+    const paginatedData = rows.slice(startIndex, endIndex); // Get the required rows
+
+    // Build table HTML dynamically
+    let tableHtml = '<table>';
+    paginatedData.forEach(row => {
+        tableHtml += row.outerHTML; // Append each row's HTML
+    });
+    tableHtml += '</table>';
+
+    $('#myTable').html(tableHtml); // Update the table content
+}
+
+
+    // Navigation buttons
+    $('#right_arrow_btn').click(function () {
+        if ((currentPage * rowsPerPage) < totalRows) {
+            currentPage++;
+            renderTable(currentPage);
+        } else {
+            alert('No more pages available.');
+        }
+    });
+
+    $('#left_arrow_btn').click(function () {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable(currentPage);
+        } else {
+            alert('You are on the first page.');
+        }
+    });
+});
+
+
+
+        
+       
+
+    </script>
+</body>
+</html>
