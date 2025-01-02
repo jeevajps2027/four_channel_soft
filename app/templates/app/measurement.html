@@ -157,7 +157,7 @@
                 <textarea id="probe-C"></textarea>
                <textarea id="probe-D"></textarea>
             </div>
-            <button id="rest-btn" class="toggle-btn" disabled style="filter: blur(2px);">START[F4]<br>STOP[F5]</button>
+            <button id="rest-btn" class="toggle-btn" >START[F4]<br>STOP[F5]</button>
 
         </div>
        
@@ -166,7 +166,7 @@
 
             <button type="submit" class="container-3-2-btn" id="master_btn">MASTERING[F1]</button>
             <button type="submit" class="container-3-2-btn" id="model_btn" onclick="showNextPartName()">MODEL[F2]</button>
-            <button type="submit" class="container-3-2-btn" id="spc_btn">SPC[F3]</button>
+            <button type="submit" class="container-3-2-btn" id="spc_btn">LIVE SPC[F3]</button>
             <button type="submit" class="container-3-2-btn" id="report_btn">REPORT[F6]</button>
 
            
@@ -254,6 +254,8 @@ $(document).ready(function () {
         console.log('Formatted value to send:', formattedDateTime);
 
         var shift = $("#shift").val(); // Example: SHIFT-2
+        var partModel = $("#part_model").val(); // Get the value of the part model input
+
 
         // Send AJAX GET request
         $.ajax({
@@ -261,7 +263,8 @@ $(document).ready(function () {
             type: 'POST',
             data: { 
                 date: formattedDateTime, 
-                shift: shift 
+                shift: shift,
+                part_model: partModel,
             },
             success: function (response) {
                 console.log("Data received successfully:");
@@ -303,6 +306,7 @@ function showNextPartName() {
 
         // Send the updated part model to the backend
         sendPartModelToBackend(partModel);
+        sendPartModelForCount(partModel);
 
         // Increment the index and loop back to the start if needed
         currentIndex = (currentIndex + 1) % partNames.length;
@@ -360,11 +364,22 @@ function sendPartModelToBackend(partModel) {
             console.log("char_lock_limit_value:", response.char_lock_limit_value);
             console.log("punch_no_value:", response.punch_no_value);
 
-            if (response.punch_no_value) {
+
+            const restButton = document.getElementById('rest-btn'); // Get the button element
+
+
+            if (response.punch_no_value === true) {
                 const punchNoField = document.getElementById('punch_no');
                 if (punchNoField) {
-                    // Focus on the 'punch_no' input field
-                    punchNoField.focus();
+                    punchNoField.disabled = false; // Ensure the field is enabled
+                    punchNoField.style.filter = 'none'; // Remove blur effect
+                    punchNoField.focus(); // Focus on the input field
+
+                    if (restButton) {
+                        restButton.disabled = true; // Disable the button
+                        restButton.style.filter = 'blur(2px)'; // Apply blur effect
+                    }
+                    
                 }
 
                 // Listen for "Enter" key press
@@ -375,6 +390,8 @@ function sendPartModelToBackend(partModel) {
                         const charLockValue = response.char_lock_value;
                         const charLockLimitValue = response.char_lock_limit_value;
                         const partModel = document.getElementById('part_model').value; // Get part_model
+
+                        
 
                         // Validation checks for input value
                         if (!inputValue.startsWith(charLockValue)) {
@@ -388,6 +405,12 @@ function sendPartModelToBackend(partModel) {
                             alert(`Input must be exactly ${expectedLength} characters long.`);
                             punchNoField.value = '';
                             return;
+                        }
+
+                        // Re-enable and remove blur effect from the rest button
+                        if (restButton) {
+                            restButton.disabled = false; // Enable the button
+                            restButton.style.filter = 'none'; // Remove blur effect
                         }
 
                         // Step 1: Send POST request to check if the punch number exists
@@ -459,10 +482,11 @@ function sendPartModelToBackend(partModel) {
                                         alert('Failed to delete punch number.');
                                     });
                                 };
-                            } else {
-                                // Keep the button disabled and blurred if 'punch_no_value' is false
-                                $('#rest-btn').prop('disabled', false).css('filter', 'none');
                             }
+                            //  else {
+                            //     // Keep the button disabled and blurred if 'punch_no_value' is false
+                            //     $('#rest-btn').prop('disabled', false).css('filter', 'none');
+                            // }
                         })
                         .catch(error => {
                             console.error('Error:', error);
@@ -475,9 +499,20 @@ function sendPartModelToBackend(partModel) {
                 
 
 
-            } else {
+            } 
+            else {
                 // Keep the button disabled and blurred if 'punch_no_value' is false
-                $('#rest-btn').prop('disabled', false).css('filter', 'none');
+               // $('#rest-btn').prop('disabled', false).css('filter', 'none');
+                const punchNoField = document.getElementById('punch_no');
+                if (punchNoField) {
+                    punchNoField.disabled = true; // Disable the field
+                    punchNoField.style.filter = 'blur(2px)'; // Apply blur effect
+                }
+
+                if (restButton) {
+                    restButton.disabled = false;
+                    restButton.style.filter = 'none';
+                }
             }
 
 
@@ -1082,32 +1117,49 @@ function mapProbeToTextareaId(probeNumber) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-
-
 $(document).ready(function () {
     $("#master_btn").click(function () {
         const partName = $("#part_model").val(); // Capture the input value
         $.ajax({
-            url: "/changed_name/", // URL for 'measurement' view
+            url: "{% url 'master' %}", // URL for 'newma' view
             method: "POST",
             headers: { "X-CSRFToken": "{{ csrf_token }}" },
-            data: JSON.stringify({ part_names: partName }), // Send part_name as JSON
-            contentType: "application/json", // Specify JSON content type
+            data: { part_model: partName }, // Send the part_model
             success: function (response) {
                 if (response.redirect_url) {
                     // Redirect to newma and send part_model as a query parameter
-                    window.location.href = response.redirect_url;
-                } else {
-                    alert(response.message); // Show error message
+                    window.location.href = response.redirect_url + "?part_model=" + encodeURIComponent(partName);
                 }
             },
             error: function (xhr, status, error) {
                 console.error("Error:", error);
-                alert("An error occurred while saving the part name.");
             },
         });
     });
 });
+
+
+
+
+
+function sendPartModelForCount(partModel) {
+    $.ajax({
+        url: "/changed_name/", // URL for 'measurement' view
+        method: "POST",
+        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+        data: JSON.stringify({ part_names: partModel }), // Send partModel as JSON
+        contentType: "application/json", // Specify JSON content type
+        success: function (response) {
+            console.log("Part model sent successfully:", partModel);
+            console.log("Response from server:", response);
+        },
+        error: function (error) {
+            console.error("Error sending part model:", error);
+        },
+    });
+}
+
+
 
 document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("report_btn").addEventListener("click", function () {

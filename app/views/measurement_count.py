@@ -16,9 +16,11 @@ def measurement_count(request):
     if request.method == 'POST':# Retrieve input parameters
         input_date = request.POST.get('date')
         input_shift = request.POST.get('shift')
+        input_partModel = request.POST.get('part_model')
 
         print("Received Date:", input_date)
         print("Received Shift:", input_shift)
+        print("Received partModel:", input_partModel)
 
         only_date = []
         formatted_date = []
@@ -42,7 +44,7 @@ def measurement_count(request):
         # Query MeasurementData to fetch date and overall_status
         filtered_data = (
             MeasurementData.objects
-            .filter(date__date=formatted_date, shift=input_shift)  # Fetch date and overall_status
+            .filter(part_model=input_partModel,date__date=formatted_date, shift=input_shift)  # Fetch date and overall_status
             .values('date', 'overall_status')
             .annotate(count=Count('overall_status'))  # Count occurrences of overall_status
             .order_by('date')  # Sort by date

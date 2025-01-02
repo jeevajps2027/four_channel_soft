@@ -6,7 +6,7 @@ import sys
 import threading
 
 # Use the same stop_event from PyQt5 code
-from manage1 import stop_event
+from managetest import stop_event
 
 @csrf_exempt
 def shutdown(request):

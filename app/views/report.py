@@ -5,14 +5,11 @@ import pandas as pd
 from app.models import Data_Shift, MeasurementData, Parameter_Settings, paraTableData
 
 
-
-
 def report(request):
     if request.method == 'POST':
         raw_data = request.POST.get('data')
         if raw_data:
             data = json.loads(raw_data)
-            print("data:", data)
 
             from_date = data.get('from_date')
             part_model = data.get('part_model')
@@ -37,37 +34,19 @@ def report(request):
 
             filtered_data = MeasurementData.objects.filter(**filter_kwargs).order_by('date')
 
-            # Include records where comp_sr_no is null or empty
-            distinct_comp_sr_nos = (
-                filtered_data.values_list('comp_sr_no', flat=True)
-                .distinct()
-                .order_by('date')
-            )
-
-            # Replace None or empty comp_sr_no with ''
-            distinct_comp_sr_nos = [comp_sr_no if comp_sr_no else '' for comp_sr_no in distinct_comp_sr_nos]
-
-            filtered_data_list = list(filtered_data.values())
-            print("Filtered data:", filtered_data_list)
-            print("distinct_comp_sr_nos:", distinct_comp_sr_nos)
-
-            total_count = len(distinct_comp_sr_nos)
-            print(f"Number of distinct comp_sr_no values: {total_count}")
-
+            # Data dictionary for the table
             data_dict = {
                 'Date': [],
-                'Job Number': [],
+                'Job Numbers': [],
                 'Shift': [],
                 'Operator': [],
+                'Status': [],
             }
 
+            # Add parameter data keys dynamically
             parameter_data = paraTableData.objects.filter(
                 parameter_settings__part_model=part_model
             ).values('parameter_name', 'usl', 'lsl')
-
-            parameter_data_list = list(parameter_data)
-
-            print("Parameter Data:", parameter_data_list)
 
             for param in parameter_data:
                 param_name = param['parameter_name']
@@ -76,88 +55,85 @@ def report(request):
                 key = f"{param_name} <br>{usl} <br>{lsl}"
                 data_dict[key] = []
 
-            data_dict['Status'] = []
-
-            rows_dict = {}
-
-            for comp_sr_no in distinct_comp_sr_nos:
-                print(f"Processing comp_sr_no: {comp_sr_no}")
-
-                filter_params = filter_kwargs.copy()
-                filter_params['comp_sr_no'] = comp_sr_no
-
-                part_status = MeasurementData.objects.filter(**filter_params).values_list('overall_status', flat=True).distinct().first()
-                print(f"Part Status: {part_status}")
-
-                comp_sr_no_data = MeasurementData.objects.filter(**filter_params).values(
-                    'parameter_name', 'output', 'operator', 'shift', 'date', 'overall_status', 'max_value', 'min_value', 'tir_value'
-                ).order_by('date')
-                print("comp_sr_no_data", comp_sr_no_data)
-
-                if comp_sr_no not in rows_dict:
-                    rows_dict[comp_sr_no] = {
-                        'Date': '',
-                        'Job Number': comp_sr_no if comp_sr_no else '',
-                        'Shift': '',
-                        'Operator': '',
-                        'Status': '',
+            unique_dates = set()
+            # Group data by Date
+            grouped_data = {}
+            for record in filtered_data:
+                date = record.date.strftime('%d-%m-%Y %I:%M:%S %p')
+                unique_dates.add(date)  # Track unique dates
+                if date not in grouped_data:
+                    grouped_data[date] = {
+                        'Job Numbers': set(),
+                        'Shift': record.shift,
+                        'Operator': record.operator,
+                        'Status': record.overall_status,
+                        'Parameters': {key: set() for key in data_dict if key not in ['Date', 'Shift', 'Operator', 'Status', 'Job Numbers']}
                     }
 
-                combined_row = rows_dict[comp_sr_no]
+                # Collect unique job numbers
+                if record.comp_sr_no:
+                    grouped_data[date]['Job Numbers'].add(record.comp_sr_no)
 
-                for data in comp_sr_no_data:
-                    parameter_name = data['parameter_name']
-                    print("parameter_name", parameter_name)
-                    usl = paraTableData.objects.get(parameter_name=parameter_name, parameter_settings__part_model=part_model).usl
-                    lsl = paraTableData.objects.get(parameter_name=parameter_name, parameter_settings__part_model=part_model).lsl
-                    print("usl:", usl)
-                    print("lsl:", lsl)
-                    key = f"{parameter_name} <br>{usl} <br>{lsl}"
-                    formatted_date = data['date'].strftime('%d-%m-%Y %I:%M:%S %p')
-                    print("formatted_date", formatted_date)
+                # Add parameter data
+                for param in parameter_data:
+                    param_name = param['parameter_name']
+                    usl = param['usl']
+                    lsl = param['lsl']
+                    key = f"{param_name} <br>{usl} <br>{lsl}"
 
-                    if mode == 'max':
-                        value_to_display = data['max_value']
-                    elif mode == 'min':
-                        value_to_display = data['min_value']
-                    elif mode == 'tir':
-                        value_to_display = data['tir_value']
-                    else:
-                        value_to_display = data['output']
+                    parameter_values = MeasurementData.objects.filter(
+                        comp_sr_no=record.comp_sr_no,
+                        date=record.date,
+                        parameter_name=param_name
+                    )
 
-                    if data['overall_status'] == 'ACCEPT':
-                        readings_html = f'<span style="background-color: #00ff00; padding: 2px;">{value_to_display}</span>'
-                    elif data['overall_status'] == 'REWORK':
-                        readings_html = f'<span style="background-color: yellow; padding: 2px;">{value_to_display}</span>'
-                    elif data['overall_status'] == 'REJECT':
-                        readings_html = f'<span style="background-color: red; padding: 2px;">{value_to_display}</span>'
+                    for pv in parameter_values:
+                        value_to_display = ""
+                        if mode == 'max':
+                            value_to_display = pv.max_value
+                        elif mode == 'min':
+                            value_to_display = pv.min_value
+                        elif mode == 'tir':
+                            value_to_display = pv.tir_value
+                        else:
+                            value_to_display = pv.output
 
-                    combined_row[key] = combined_row.get(key, '') + f' {readings_html}'
-                    combined_row['Date'] = formatted_date
-                    combined_row['Operator'] = data['operator']
-                    combined_row['Shift'] = data['shift']
-                    combined_row['Status'] = data['overall_status']
+                        if pv.overall_status == 'ACCEPT':
+                            value_to_display = f'<span style="background-color: #00ff00; padding: 2px;">{value_to_display}</span>'
+                        elif pv.overall_status == 'REWORK':
+                            value_to_display = f'<span style="background-color: yellow; padding: 2px;">{value_to_display}</span>'
+                        elif pv.overall_status == 'REJECT':
+                            value_to_display = f'<span style="background-color: red; padding: 2px;">{value_to_display}</span>'
 
-            for key in data_dict:
-                data_dict[key] = []
+                        grouped_data[date]['Parameters'][key].add(value_to_display)
 
-            for row in rows_dict.values():
-                for key, value in row.items():
-                    data_dict[key].append(value if value else '')
+            # Convert grouped data into a DataFrame
+            for date, group in grouped_data.items():
+                data_dict['Date'].append(date)
+
+                # Join all job numbers as a single string for display
+                job_numbers_combined = "<br>".join(sorted(group['Job Numbers']))
+                data_dict['Job Numbers'].append(job_numbers_combined)
+
+                data_dict['Shift'].append(group['Shift'])
+                data_dict['Operator'].append(group['Operator'])
+                data_dict['Status'].append(group['Status'])
+
+                for key, values in group['Parameters'].items():
+                    # Combine unique values and display only once
+                    data_dict[key].append("<br>".join(sorted(values)))
 
             df = pd.DataFrame(data_dict)
             df.index = df.index + 1
 
             table_html = df.to_html(index=True, escape=False, classes='table table-striped')
 
-            print("table_html", table_html)
             return JsonResponse({
                 'table_html': table_html,
-                'total_count': total_count,
+                'total_count': len(unique_dates),
             })
 
-
-                
+   
            
     
     elif request.method == 'GET':
