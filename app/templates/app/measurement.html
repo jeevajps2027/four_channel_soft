@@ -9,7 +9,7 @@
     <title>Measurement</title>
    
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/measurements.css'%}">
+    <link rel="stylesheet" href="{% static 'css/measurement.css'%}">
     
 </head>
 <body>
@@ -166,8 +166,11 @@
 
             <button type="submit" class="container-3-2-btn" id="master_btn">MASTERING[F1]</button>
             <button type="submit" class="container-3-2-btn" id="model_btn" onclick="showNextPartName()">MODEL[F2]</button>
-            <button type="submit" class="container-3-2-btn" id="spc_btn">LIVE SPC[F3]</button>
-            <button type="submit" class="container-3-2-btn" id="report_btn">REPORT[F6]</button>
+            <button type="submit" class="container-3-2-btn" id="live_spc_btn">LIVE SPC[F3]</button>
+            <button type="submit" class="container-3-2-btn" id="report_btn_main">REPORT[F6]</button>
+
+            <button type="button" class="container-3-2-btn" id="spc_btn" style="display:none;">SPC</button>
+            <button type="button" class="container-3-2-btn" id="report_btn" style="display:none;">Reports</button>
 
            
         </div>
@@ -1118,7 +1121,8 @@ function mapProbeToTextareaId(probeNumber) {
 ////////////////////////////////////////////////////////////////////////////
 
 $(document).ready(function () {
-    $("#master_btn").click(function () {
+    // Function to trigger the same functionality as button click
+    function triggerAjaxRequest() {
         const partName = $("#part_model").val(); // Capture the input value
         $.ajax({
             url: "{% url 'master' %}", // URL for 'newma' view
@@ -1135,9 +1139,23 @@ $(document).ready(function () {
                 console.error("Error:", error);
             },
         });
+    }
+
+    // Trigger the function when the button is clicked
+    $("#master_btn").click(function () {
+        triggerAjaxRequest();
+    });
+
+    // Trigger the function when the F1 key is pressed
+    $(document).keydown(function (e) {
+        if (e.key === "F1") { // Check if the pressed key is F1
+            e.preventDefault(); // Prevent the default F1 action (help page)
+            triggerAjaxRequest(); // Trigger the AJAX request
+        }
     });
 });
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1159,38 +1177,70 @@ function sendPartModelForCount(partModel) {
     });
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("report_btn").addEventListener("click", function () {
-            const partName = document.getElementById("part_model").value.trim();
-
-            if (!partName) {
-                alert("Please enter a part model!");
-                return;
-            }
-
-            // Redirect to the report/ page with the part_model as a query parameter
-            const redirectUrl = `/report/?part_model=${encodeURIComponent(partName)}`;
-            window.location.href = redirectUrl;
-        });
+    // Event listener for report_btn_main click
+    document.getElementById("report_btn_main").addEventListener("click", function () {
+        // Show the two additional buttons when the main button is clicked
+        document.getElementById("spc_btn").style.display = "inline-block";
+        document.getElementById("report_btn").style.display = "inline-block"; // Show the report button as well
     });
 
+    // Event listener for the report_btn click (this will trigger the redirect)
+    document.getElementById("report_btn").addEventListener("click", function () {
+        const partName = document.getElementById("part_model").value.trim();
+
+        if (!partName) {
+            alert("Please enter a part model!");
+            return;
+        }
+
+        // Redirect to the report/ page with the part_model as a query parameter
+        const redirectUrl = `/report/?part_model=${encodeURIComponent(partName)}`;
+        window.location.href = redirectUrl;
+    });
+    
+    // Optional: F6 key press listener to trigger the same action as the report_btn click
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "F6") { // Check if F6 key is pressed
+            e.preventDefault(); // Prevent default behavior of F6
+            document.getElementById("report_btn_main").click(); // Simulate a click on the report_btn
+        }
+    });
+});
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("spc_btn").addEventListener("click", function () {
-            const partName = document.getElementById("part_model").value.trim();
+    // Function to handle the click event
+    function handleClickspc() {
+        const partName = document.getElementById("part_model").value.trim();
 
-            if (!partName) {
-                alert("Please enter a part model!");
-                return;
-            }
+        if (!partName) {
+            alert("Please enter a part model!");
+            return;
+        }
 
-            // Redirect to the report/ page with the part_model as a query parameter
-            const redirectUrl = `/spc/?part_model=${encodeURIComponent(partName)}`;
-            window.location.href = redirectUrl;
-        });
+        // Redirect to the report/ page with the part_model as a query parameter
+        const redirectUrl = `/spc/?part_model=${encodeURIComponent(partName)}`;
+        window.location.href = redirectUrl;
+    }
+
+    // Event listener for the button click
+    document.getElementById("live_spc_btn").addEventListener("click", handleClickspc);
+
+    // Event listener for the F3 key press
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "F3") { // Check if the pressed key is F3
+            e.preventDefault(); // Prevent the default F3 action
+            handleClickspc(); // Trigger the handleClick function
+        }
     });
+});
+
 
 
 

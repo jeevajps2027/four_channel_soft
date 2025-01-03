@@ -284,9 +284,9 @@ function createTableRows() {
 createTableRows();
 
 
-// Adding event listener for the "Add New" button to reset the table and form fields
-document.getElementById('addnew_btn').addEventListener('click', function() {
-    // Reset form fields as before
+// Function to reset form fields and clear the table rows
+function resetFormAndTable() {
+    // Reset form fields
     document.getElementById('srno').selectedIndex = 0;
     document.getElementById('part_model').value = '';
     document.getElementById('part_name').value = '';
@@ -296,7 +296,13 @@ document.getElementById('addnew_btn').addEventListener('click', function() {
 
     // Clear and recreate the table rows
     createTableRows();
-});
+}
+
+// Adding event listener for the "Add New" button
+document.getElementById('addnew_btn').addEventListener('click', resetFormAndTable);
+
+// Adding event listener to the 'part_model' field to trigger resetFormAndTable when it's changed
+document.getElementById('part_model').addEventListener('click', resetFormAndTable);
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 $(document).ready(function () {

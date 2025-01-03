@@ -10,6 +10,27 @@
     <link rel="stylesheet" href="{% static 'css/spc.css'%}">
     <title>SPC</title>  
 </head>
+<style>
+    
+
+    .grid_container {
+    display: grid;
+    grid-template-columns: repeat(2, 50%);  /* 2 equal columns */
+    grid-template-rows: repeat(2, 50%);     /* 2 equal rows */
+    height: 90vh;                          /* Full viewport height */
+    width: 100%;                            /* Full width */
+}
+
+.grid_item {
+    border: 1px solid black;               /* For visualization */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+
+</style>
 <body>
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
@@ -36,6 +57,7 @@
             </button>  
         </div>
     </div>
+    <div class="container_gen" >
     <div class="container_1_1">
         <label for="usl">USL:</label>
         <input type="text" id="usl" >
@@ -54,10 +76,19 @@
         <label for="cpk">CPK:</label>
         <input type="text" id="cpk" >
     </div>
-    <div class="container-2">
+    <div class="container-2" style="overflow-y: auto;">
     </div>
     <div class="container-3">
     </div>
+</div>
+
+<div class="grid_container">
+    <div class="grid_item" id="grid_item_1">Item 1</div>
+    <div class="grid_item" id="grid_item_2">Item 2</div>
+    <div class="grid_item" id="grid_item_3">Item 3</div>
+    <div class="grid_item" id="grid_item_4">Item 4</div>
+</div>
+
 
 
 <script>
@@ -158,6 +189,8 @@
                     $('#utl').val(response.utl);
                     $('#ltl').val(response.ltl);
                     $('#mean').val(response.mean.toFixed(4));
+                    $('#cp').val(response.cp);
+                    $('#cpk').val(response.cpk);
 
                 } else {
                     alert('Error: No chart HTML returned.');
