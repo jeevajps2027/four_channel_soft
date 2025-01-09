@@ -18,7 +18,7 @@ def login(request):
             if not username:
                 return JsonResponse({'status': 'error', 'message': 'Username is required.'}, status=400)
 
-            if not username == 'saadmin':
+            if not username == 'SAADMIN':
                 user, created = User_Data.objects.get_or_create(id=1)  # Always use ID 1
                 user.username = username  # Update the username field with the new value
                 user.save()
@@ -30,7 +30,7 @@ def login(request):
                     print(f'Username already exists: {user.username}')
 
             # Check credentials
-            if username == 'saadmin' and password == 'saadmin':
+            if username == 'SAADMIN' and password == 'saadmin':
                 return JsonResponse({'status': 'success', 'message': 'Login successful', 'redirect': '/measurement/'})
             
             # Check against Operator_setting

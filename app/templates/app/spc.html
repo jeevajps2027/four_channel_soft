@@ -7,28 +7,12 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/spc.css'%}">
+    <link rel="stylesheet" href="{% static 'css/spcs.css'%}">
     <title>SPC</title>  
 </head>
 <style>
     
-
-    .grid_container {
-    display: grid;
-    grid-template-columns: repeat(2, 50%);  /* 2 equal columns */
-    grid-template-rows: repeat(2, 50%);     /* 2 equal rows */
-    height: 90vh;                          /* Full viewport height */
-    width: 100%;                            /* Full width */
-}
-
-.grid_item {
-    border: 1px solid black;               /* For visualization */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
+    
 
 </style>
 <body>
@@ -36,6 +20,9 @@
 
     <div class="container-1">
         <div class="container-1-1">
+
+            <label for="part_count">PART COUNT:</label>
+            <input type="text" id="part_count" >
            
             <input type="text" id="clock-box" >
 
@@ -57,7 +44,7 @@
             </button>  
         </div>
     </div>
-    <div class="container_gen" >
+    <div class="container_gen" style="display: none;">
     <div class="container_1_1">
         <label for="usl">USL:</label>
         <input type="text" id="usl" >
@@ -82,11 +69,11 @@
     </div>
 </div>
 
-<div class="grid_container">
-    <div class="grid_item" id="grid_item_1">Item 1</div>
-    <div class="grid_item" id="grid_item_2">Item 2</div>
-    <div class="grid_item" id="grid_item_3">Item 3</div>
-    <div class="grid_item" id="grid_item_4">Item 4</div>
+<div class="grid_container" style="display: none;">
+    <div class="grid_item" id="grid_item_1"></div>
+    <div class="grid_item" id="grid_item_2"></div>
+    <div class="grid_item" id="grid_item_3"></div>
+    <div class="grid_item" id="grid_item_4"></div>
 </div>
 
 
@@ -157,52 +144,91 @@
         }
     });
 
-    // Function to send data to the backend
     function sendDataToBackend(partModel, parameterName) {
-        $('#loading_spinner').show();
-        const payload = {
-            partModel: partModel,
-            parameterName: parameterName,
-        };
+    $('#loading_spinner').show();
+    const payload = {
+        partModel: partModel,
+        parameterName: parameterName,
+    };
 
-        console.log("Payload sent to the backend:", payload);
+    console.log("Payload sent to the backend:", payload);
 
-        const csrfToken = getCookie('csrftoken');
+    const csrfToken = getCookie('csrftoken');
 
-        $.ajax({
-            url: '/spc/',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(payload),
-            headers: {
-                'X-CSRFToken': csrfToken
-            },
-            success: function (response) {
-                $('#loading_spinner').hide();
-                // Insert the chart_html and table_html into their respective containers
-                if (response.chart_html) {
-                    $('.container-2').html(response.chart_html);
+    $.ajax({
+        url: '/spc/',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(payload),
+        headers: {
+            'X-CSRFToken': csrfToken
+        },
+        success: function (response) {
+            $('#loading_spinner').hide();
+
+            if (response.chart_html) {
+                // Ensure charts is an array
+                const charts = Array.isArray(response.chart_html) ? response.chart_html : [response.chart_html];
+                console.log("usl:",response.usl)
+                console.log("lsl:",response.lsl)
+                console.log("utl:",response.utl)
+                console.log("ltl:",response.ltl)
+                console.log("nominal:",response.nominal)
+                console.log("mean:",response.mean)
+               
+
+                // Clear existing content
+                $('.grid_item').empty();
+                $('.container-2').empty(); // Clear container-2 for the single chart case
+                $('.container-3').empty();
+
+                // If only one chart, display it in the container-2
+                if (charts.length === 1) {
+                    $('.container-2').html(charts[0]);
                     $('.container-3').html(response.table_html);
+                    $('.container_gen').show();
+                    $('.grid_container').hide();
                     $('#usl').val(response.usl);
                     $('#lsl').val(response.lsl);
-                    $('#nominal').val(response.nominal);
                     $('#utl').val(response.utl);
                     $('#ltl').val(response.ltl);
+                    $('#nominal').val(response.nominal);
                     $('#mean').val(response.mean.toFixed(4));
-                    $('#cp').val(response.cp);
-                    $('#cpk').val(response.cpk);
+                    $('#cp').val(response.cp.toFixed(4));
+                    $('#cpk').val(response.cpk.toFixed(4));
+
 
                 } else {
-                    alert('Error: No chart HTML returned.');
+                    // Otherwise, handle the grid display
+                    charts.forEach((chartHtml, index) => {
+                        const gridItemId = `#grid_item_${index + 1}`;
+                        $(gridItemId).html(chartHtml);
+                    });
+
+                    // If fewer charts than grid items, leave the remaining grid items empty
+                    for (let i = charts.length + 1; i <= 4; i++) {
+                        $(`#grid_item_${i}`).empty();
+                    }
+
+                    // Show the grid container if multiple charts
+                    $('.grid_container').show();
+                    $('.container_gen').hide();
                 }
-            },
-            error: function (xhr, status, error) {
-                console.log('AJAX error: ' + status + ' ' + error);
-                alert('Error fetching chart data.');
-                $('#loading_spinner').hide();
+            } else {
+                alert('Error: No chart HTML returned.');
             }
-        });
-    }
+        },
+        error: function (xhr, status, error) {
+            console.log('AJAX error: ' + status + ' ' + error);
+            alert('Error fetching chart data.');
+            $('#loading_spinner').hide();
+        }
+    });
+}
+
+
+
+
 
     // Function to get CSRF token from cookies
     function getCookie(name) {
@@ -221,6 +247,10 @@ console.log("Raw parameterNamesString:", parameterNamesString);
 const parameterNames = parameterNamesString.match(/'([^']+)'/g).map(name => name.replace(/'/g, '').trim());
 console.log("parameterNames Array:", parameterNames);
 
+// Add 'ALL' as the first value in the array
+parameterNames.unshift('ALL');
+console.log("parameterNames Array after adding 'ALL':", parameterNames);
+
 let currentIndex = 0; // Initialize index
 console.log("Initial currentIndex:", currentIndex);
 console.log("parameterNames[0]:", parameterNames[0]);
@@ -237,6 +267,7 @@ function cycleParameterName() {
 if (parameterNames.length > 0) {
     document.getElementById('parameter_button').textContent = parameterNames[0];
 }
+
 
 
 

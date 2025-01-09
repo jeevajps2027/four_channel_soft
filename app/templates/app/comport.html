@@ -146,6 +146,17 @@ document.getElementById("parameter-settings").addEventListener("click", function
                         </tr>
                     </tfoot>
                 </table>
+
+
+
+
+
+
+
+
+
+
+
             
                 <div id="table2" class="table hidden">
                     <center style="color: purple; text-shadow: 2px 2px 4px rgb(240, 118, 240);">
@@ -161,7 +172,7 @@ document.getElementById("parameter-settings").addEventListener("click", function
                             <div class="form-row">
                                 <label for="shift_time" class="form-label">START TIME</label>
                                 <span class="colon">:</span>
-                                <input type="text" id="shift_time" name="shift_time" value="08:00:00 AM" oninput="this.value = this.value.toUpperCase()" class="form-input"><br><br>
+                                <input type="text" id="shift_time" name="shift_time"  class="form-input" ><br><br>
                             </div>
                         </div>
                         
@@ -190,43 +201,130 @@ document.getElementById("parameter-settings").addEventListener("click", function
                 </div>
 
         <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const shiftTimeInput = document.getElementById("shift_time");
 
+    // Set initial value
+    shiftTimeInput.value = "08:01:02 AM";
+
+    // Fixed positions for hours, minutes, seconds, and AM/PM
+    const sections = [
+        { start: 0, end: 2 },  // Hours
+        { start: 3, end: 5 },  // Minutes
+        { start: 6, end: 8 },  // Seconds
+        { start: 9, end: 11 }, // AM/PM
+    ];
+    let currentSection = 0; // Default to the first section
+    let inputBuffer = ""; // Buffer to collect user input for the current section
+
+    // Update cursor position based on the current section
+    function updateCursor() {
+        const section = sections[currentSection];
+        shiftTimeInput.setSelectionRange(section.start, section.end);
+    }
+
+    // Keydown handler
+    shiftTimeInput.addEventListener("keydown", function (e) {
+        e.preventDefault(); // Prevent default behavior
+
+        const key = e.key.toUpperCase();
+        let value = shiftTimeInput.value;
+
+        if (key === "TAB") {
+            // Navigate between sections with Tab and Shift + Tab
+            currentSection = (currentSection + (e.shiftKey ? -1 : 1) + sections.length) % sections.length;
+            inputBuffer = ""; // Reset buffer
+            updateCursor();
+        } else if (key === "ARROWLEFT") {
+            // Move to the previous section with Left Arrow
+            currentSection = (currentSection - 1 + sections.length) % sections.length;
+            inputBuffer = ""; // Reset buffer
+            updateCursor();
+        } else if (key === "ARROWRIGHT") {
+            // Move to the next section with Right Arrow
+            currentSection = (currentSection + 1) % sections.length;
+            inputBuffer = ""; // Reset buffer
+            updateCursor();
+        } else if (/^\d$/.test(key)) {
+            // Allow numeric input for time sections
+            const section = sections[currentSection];
+            inputBuffer += key; // Add the digit to the buffer
+
+            if (inputBuffer.length === 2) {
+                // Validate the complete input when buffer has 2 digits
+                const newValue = parseInt(inputBuffer, 10);
+                if (
+                    (currentSection === 0 && newValue >= 1 && newValue <= 12) || // Hours: 01-12
+                    (currentSection > 0 && currentSection < 3 && newValue >= 0 && newValue <= 59) // Minutes/Seconds: 00-59
+                ) {
+                    value = value.substring(0, section.start) + String(newValue).padStart(2, "0") + value.substring(section.end);
+                    shiftTimeInput.value = value;
+                    currentSection = (currentSection + 1) % sections.length; // Move to the next section
+                }
+                inputBuffer = ""; // Reset buffer
+            }
+        } else if (key === "A" || key === "P") {
+            // Toggle AM/PM
+            if (currentSection === 3) {
+                value = value.substring(0, sections[3].start) + (key === "A" ? "AM" : "PM") + value.substring(sections[3].end);
+                shiftTimeInput.value = value;
+            }
+        }
+
+        updateCursor(); // Keep cursor within the section
+    });
+
+    // Focus event to update the cursor to the current section
+    shiftTimeInput.addEventListener("focus", updateCursor);
+
+    // Initial cursor position
+    updateCursor();
+});
 document.getElementById("close_btn").addEventListener("click", function() {
         // Redirect to the measurement URL
         window.location.href = "{% url 'measurement' %}";
     });
 
 
-    $(document).ready(function() {
-    function getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]').value;
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+    const shiftInput = document.getElementById('shift');
+    const saveButton = document.getElementById('save_btn_shift');
 
-    $('#save_btn_shift').click(function() {
-        const rawTime = $('#shift_time').val();
-        const shiftValue = $('#shift').val();
-        const shiftPattern = /^SHIFT-\d+$/;
+    // Restrict input to "SHIFT-" followed by 1, 2, or 3 only
+    shiftInput.addEventListener('input', function () {
+        const validPattern = /^SHIFT-(1|2|3)?$/; // Allow SHIFT-, SHIFT-1, SHIFT-2, SHIFT-3
+        if (!validPattern.test(shiftInput.value)) {
+            shiftInput.value = 'SHIFT-'; // Reset to the base if invalid
+        }
+    });
 
-        if (!shiftPattern.test(shiftValue)) {
-            alert('Please enter a valid shift value like SHIFT-1, SHIFT-2, etc.');
+    saveButton.addEventListener('click', function () {
+        const shiftValue = shiftInput.value;
+        const rawTime = document.getElementById('shift_time').value;
+
+        // Validate shift input
+        if (!/^SHIFT-(1|2|3)$/.test(shiftValue)) {
+            alert('Please enter a valid shift value like SHIFT-1, SHIFT-2, or SHIFT-3.');
             return;
         }
 
+        // Validate time input
         const timePattern = /^(0[1-9]|1[0-2]):[0-5][0-9]:[0-5][0-9] (AM|PM)$/i;
         if (!timePattern.test(rawTime)) {
             alert('Please enter a valid time in HH:MM:SS AM/PM format.');
             return;
         }
 
+        // Data to be sent
         const data = {
             request_type: 'shift_settings',
             shift: shiftValue,
-            shift_time: rawTime
+            shift_time: rawTime,
         };
 
         console.log('Data to be sent:', data);
 
-        // Add the CSRF token to the headers
+        // Send data via AJAX
         $.ajax({
             type: 'POST',
             url: '/comport/',
@@ -234,28 +332,40 @@ document.getElementById("close_btn").addEventListener("click", function() {
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
             headers: {
-                'X-CSRFToken': getCSRFToken()
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
             },
-            success: function(response) {
-                console.log('Response:', response);
-                if (response.status === "success") {
+            success: function (response) {
+                if (response.status === 'success') {
                     alert('Shift settings saved successfully!');
                     window.location.reload();
-                    sessionStorage.setItem('selectedItem', 'shift_settings');
                 } else {
                     alert('Error: ' + response.message);
                 }
             },
-            error: function(error) {
+            error: function (error) {
                 console.log('Error:', error);
                 alert('An error occurred while saving shift settings.');
-            }
+            },
         });
     });
 });
 
         </script>                
             
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <div id="table3" class="table hidden">
                     <h3>Container 3 Header</h3>
                     <p>This is container 3 content.</p>
@@ -595,9 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-// operator js code
-
-    function addRow() {
+function addRow() {
     const tableBody = document.getElementById("tableBody-1");
 
     // Get the current number of rows
@@ -610,8 +718,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create and append cells to the new row
     newRow.innerHTML = `
         <td>${rowCount + 1}</td>
-        <td><input type="text" class="no-outline" style="width: 100%;"></td>
-        <td><input type="text" class="no-outline" style="width: 100%;"></td>
+        <td><input type="text" class="no-outline" style="width: 100%;" oninput="this.value = this.value.toUpperCase();"></td>
+        <td><input type="text" class="no-outline" style="width: 100%;" oninput="this.value = this.value.toUpperCase();"></td>
     `;
 
     // Append the new row to the table body

@@ -16,13 +16,25 @@
 
 <body>
 
+    <div class="container_1_image">
+        <div class="image_container">
+            <img src="static/images/general_acc.png" alt="Description of Image" />
+
+        </div>
+        <div class="name_container">
+            <p class="header">GENERAL METROLOGY</p>
+            <p class="subheader">- CLOSER TO THE ACCURACY</p>
+        </div>
+    </div> 
 
     <div id="notification"></div>
-    
+     
 <div class="container-1">
+   
     <div class="subcontainer-1">
         <label id="label_input">
-            <input type="text" id="user_id" placeholder="USERID">
+            <input type="text" id="user_id" placeholder="USERID" oninput="this.value = this.value.toUpperCase()">
+
         </label><br>
         <label id="label_input-1">
             <input type="text" id="password" placeholder="PASSWORD">
@@ -43,11 +55,26 @@
 
 
 
-
+document.getElementById('user_id').focus();
 window.addEventListener('DOMContentLoaded', (event) => {
             var inputs = document.querySelectorAll('input');
             inputs.forEach(input => {
                 input.setAttribute('autocomplete', 'off');
+            });
+
+            // Adding keypress event listener to navigate through fields
+            document.getElementById('user_id').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();  // Prevent form submission
+                    document.getElementById('password').focus(); // Focus on password field
+                }
+            });
+
+            document.getElementById('password').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();  // Prevent form submission
+                    handleLogin();  // Trigger the login function when Enter is pressed on password field
+                }
             });
         });
         

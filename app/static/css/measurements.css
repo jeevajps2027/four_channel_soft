@@ -45,7 +45,9 @@ body {
 
 #menu_btn {
     height: 100%;
-    width: 5%;
+    width: 8%;
+    font-weight: bold;
+    font-size: 1.5vw;
     background-color: aqua;
     border: none; /* Remove the border */
 }

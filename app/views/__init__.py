@@ -13,3 +13,5 @@ from .report_pdf import report_pdf
 from .spc import spc
 from .shutdown import shutdown
 from .changed_name import changed_name
+from .spcCharts import spcCharts
+

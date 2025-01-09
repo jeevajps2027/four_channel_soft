@@ -9,7 +9,7 @@
     <title>Measurement</title>
    
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/measurement.css'%}">
+    <link rel="stylesheet" href="{% static 'css/measurements.css'%}">
     
 </head>
 <body>
@@ -21,7 +21,7 @@
     <div class="container-1">
         <div class="container-1-1">
             <button type="submit" id="menu_btn">
-                <i class="fas fa-bars" id="menu_icon"></i>
+                <i class="fas fa-bars" id="menu_icon"></i>[F12]
             </button>
             <input type="text" id="date_time" >
             <input type="text" id="operator" >
@@ -169,8 +169,8 @@
             <button type="submit" class="container-3-2-btn" id="live_spc_btn">LIVE SPC[F3]</button>
             <button type="submit" class="container-3-2-btn" id="report_btn_main">REPORT[F6]</button>
 
-            <button type="button" class="container-3-2-btn" id="spc_btn" style="display:none;">SPC</button>
-            <button type="button" class="container-3-2-btn" id="report_btn" style="display:none;">Reports</button>
+            <button type="button" class="container-3-2-btn" id="spc_btn" style="display:none;">SPC[F7]</button>
+            <button type="button" class="container-3-2-btn" id="report_btn" style="display:none;">REPORT[F8]</button>
 
            
         </div>
@@ -204,7 +204,33 @@
    
    
 <script>
+document.addEventListener('keydown', function(event) {
+        // Check for specific function keys
+        switch (event.key) {
+            case 'F1':
+                event.preventDefault(); // Prevent default action
+                document.getElementById('master_btn').click(); // Trigger Add New button
+                break;
+            case 'F2':
+                event.preventDefault(); // Prevent default action
+                document.getElementById('model_btn').click(); // Trigger Save button
+                break;
+            case 'F3':
+                event.preventDefault(); // Prevent default action
+                document.getElementById('spc_btn').click(); // Trigger Delete button
+                break;
+            // case 'F6':
+            //     event.preventDefault(); // Prevent default action
+            //     document.getElementById('report_btn').click(); // Trigger Cancel button
+            //     break;
 
+
+            case 'F12':
+                event.preventDefault(); // Prevent default action
+                document.getElementById('menu_btn').click(); // Trigger Cancel button
+                break;    
+        }
+    });
 
 document.getElementById("menu_btn").addEventListener("click", function() {
         // Redirect to the measurement URL
@@ -318,6 +344,17 @@ function showNextPartName() {
         alert("No part names available.");
     }
 }
+// Add a keydown event listener for the F2 key
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'F2') {
+        // Prevent the default behavior of the F2 key (e.g., renaming files in some OS)
+        event.preventDefault();
+
+        // Call the showNextPartName function
+        showNextPartName();
+    }
+});
+
 
 // Initialize the part model input on page load and send the initial value
 $(document).ready(function () {
@@ -625,13 +662,59 @@ let displayOutputs = []; // Array to store displayOutput values for all steps
 let currentStep = 1;     // Initialize the current step to 1
     // Example total steps (you can set this dynamically)
 
+// // Wait for the DOM content to load
+// document.addEventListener('DOMContentLoaded', () => {
+//     const button = document.getElementById('rest-btn');
+//     const notificationBar = document.getElementById('notification_bar');
+//     let isStart = true; // Tracks the current state of the button
+
+//     button.addEventListener('click', () => {
+//         if (isStart) {
+//             // Start action triggered
+//             console.log(`Start action triggered for Step ${currentStep}!`);
+//             notificationBar.value = `MEASUREMENT IS STARTING FOR STEP ${currentStep}`;
+
+//             button.innerHTML = `STOP[F5] - Step ${currentStep}`; // Update button text
+//             button.id = 'stop-btn'; // Change button ID
+
+//             // Call the function to start data collection for the current step
+//             getStoredData(currentStep);
+
+//         } else {
+//             // Stop action triggered
+//             console.log(`Stop action triggered for Step ${currentStep}!`);
+//             notificationBar.value = `MEASUREMENT IS COMPLETED FOR STEP ${currentStep}`;
+
+//             button.innerHTML = `START[F4] - Step ${currentStep + 1}`; // Update button text
+//             button.id = 'start-btn'; // Change button ID
+
+//             // Perform calculations for the current step
+//             calculateMaxMinTir();
+
+//             // Check if more steps remain
+//             if (currentStep < totalSteps) {
+//                 currentStep++; // Move to the next step
+//             } else {
+//                 console.log("All steps completed!");
+               
+//                 notificationBar.value = "YOU HAVE COMPLETED THE MEASUREMENT FOR THIS JOB. DO THE NEXT JOB.";
+    
+//                 button.innerHTML = "START[F4]"; // Reset to initial state
+//                 currentStep = 1; // Reset the step to 1
+//             }
+//         }
+//         isStart = !isStart; // Toggle the state
+//     });
+// });
+
+
 // Wait for the DOM content to load
 document.addEventListener('DOMContentLoaded', () => {
     const button = document.getElementById('rest-btn');
     const notificationBar = document.getElementById('notification_bar');
     let isStart = true; // Tracks the current state of the button
 
-    button.addEventListener('click', () => {
+    const handleAction = () => {
         if (isStart) {
             // Start action triggered
             console.log(`Start action triggered for Step ${currentStep}!`);
@@ -642,7 +725,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Call the function to start data collection for the current step
             getStoredData(currentStep);
-
         } else {
             // Stop action triggered
             console.log(`Stop action triggered for Step ${currentStep}!`);
@@ -659,17 +741,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentStep++; // Move to the next step
             } else {
                 console.log("All steps completed!");
-               
                 notificationBar.value = "YOU HAVE COMPLETED THE MEASUREMENT FOR THIS JOB. DO THE NEXT JOB.";
-    
                 button.innerHTML = "START[F4]"; // Reset to initial state
                 currentStep = 1; // Reset the step to 1
             }
         }
         isStart = !isStart; // Toggle the state
+    };
+
+    // Add click event listener for the button
+    button.addEventListener('click', handleAction);
+
+    // Add keydown event listener for keyboard shortcuts
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'F4' && isStart) {
+            event.preventDefault();
+            // Trigger the start action if F4 is pressed and in start state
+            handleAction();
+        } else if (event.key === 'F5' && !isStart) {
+            event.preventDefault();
+            // Trigger the stop action if F5 is pressed and in stop state
+            handleAction();
+        }
     });
 });
-
 
 
 
@@ -784,108 +879,118 @@ let stopBtnListenerAdded = false;
 let dataSent = false;
 
 function displaySerialData(parameterName, probeNumber, lowMaster, highMaster, lsl, usl, ltl, utl, stepNo, autoMan, timer, digits, e_value, d_value, o1_value, textareaValue) {
-    const parameterNameArray = responseData.parameterNameArray;
     const stepNoArray = responseData.stepNoArray;
+    const channelNoArray = responseData.channelNoArray;
 
-    // console.log("stepNoArray", stepNoArray);
+    // Ensure both `probeNumber` and `stepNo` are treated as strings
+    const probeNumberString = probeNumber.toString();
+    const stepNoString = stepNo.toString();
 
-    // Initialize the gaugeIndexes array for stepNo
-    const gaugeIndexes = [];
+   // Initialize variables for each gauge, dynamically using values from `channelNoArray` and `stepNoArray`
+   const gaugeIndexMapping = [
+        { gaugeIndex: 0, probeNumber: channelNoArray[0].toString(), stepNo: stepNoArray[0].toString() },
+        { gaugeIndex: 1, probeNumber: channelNoArray[1].toString(), stepNo: stepNoArray[1].toString() },
+        { gaugeIndex: 2, probeNumber: channelNoArray[2].toString(), stepNo: stepNoArray[2].toString() },
+        { gaugeIndex: 3, probeNumber: channelNoArray[3].toString(), stepNo: stepNoArray[3].toString() }
+    ];
 
-    // Find indexes matching the current step
-    stepNoArray.forEach((step, index) => {
-        if (step === stepNo.toString()) { // Match the current step
-            gaugeIndexes.push(index);
-        }
-    });
+    // Loop through the `gaugeIndexMapping` to ensure that both gaugeIndex 0 and 1 are processed
+    gaugeIndexMapping.forEach((mapping) => {
+        if (mapping.probeNumber === probeNumberString && mapping.stepNo === stepNoString) {
+            const { gaugeIndex } = mapping;
+            console.log(`Processing gaugeIndex ${gaugeIndex} for Probe ${probeNumber} and Step ${stepNo}`);
 
-    // // Log the found gaugeIndexes for stepNo
-    // console.log(`gaugeIndexes for stepNo ${stepNo}`, gaugeIndexes);
+            const canvasId = `gaugeCanvas${gaugeIndex + 1}`;
+            const textareaId = mapProbeToTextareaId(probeNumber);
+            const textarea = document.getElementById(textareaId);
 
-    // If there are no matching indexes for stepNo, return early
-    if (gaugeIndexes.length === 0) {
-        console.error(`No gauge index found for stepNo ${stepNo}`);
-        return;
-    }
+            // Get the new serial data from the textarea (default to 0 if not valid)
+            const newSerialData = (textarea && !isNaN(parseFloat(textarea.value))) ? parseFloat(textarea.value) : 0;
+            const numericEValue = parseFloat(e_value) || 0;
+            const numericDValue = parseFloat(d_value) || 0;
+            const numericO1Value = parseFloat(o1_value) || 0;
 
-    let finalDisplayOutput = null;
+            // Calculate the display output
+            let displayOutput = numericEValue + (newSerialData * numericDValue + numericO1Value);
+            displayOutput = parseFloat(displayOutput.toFixed(4));
 
-    // Process matching gaugeIndexes
-    gaugeIndexes.forEach((gaugeIndex) => {
-        console.log(`Processing gaugeIndex ${gaugeIndex} for Step ${stepNo}`);
-
-        const canvasId = `gaugeCanvas${gaugeIndex + 1}`;
-        const textareaId = mapProbeToTextareaId(probeNumber);
-        const textarea = document.getElementById(textareaId);
-
-        const newSerialData = (textarea && !isNaN(parseFloat(textarea.value))) ? parseFloat(textarea.value) : 0;
-        const numericEValue = parseFloat(e_value) || 0;
-        const numericDValue = parseFloat(d_value) || 0;
-        const numericO1Value = parseFloat(o1_value) || 0;
-
-        let displayOutput = numericEValue + (newSerialData * numericDValue + numericO1Value);
-        displayOutput = parseFloat(displayOutput.toFixed(4));
-
-        if (isNaN(displayOutput)) {
-            console.error("Invalid displayOutput:", displayOutput);
-            return;
-        }
-
-        finalDisplayOutput = displayOutput;
-
-        if (stepNo === currentStep.toString()) {
-            if (document.getElementById('stop-btn').innerHTML.includes("STOP")) {
-                if (gaugeIndex === 0) {
-                    displayOutputsGauge1.push(displayOutput);
-                } else if (gaugeIndex === 1) {
-                    displayOutputsGauge2.push(displayOutput);
-                } else if (gaugeIndex === 2) {
-                    displayOutputsGauge3.push(displayOutput);
-                } else if (gaugeIndex === 3) {
-                    displayOutputsGauge4.push(displayOutput);
-                } else {
-                    console.error("Invalid gauge name:", parameterName);
-                }
+            if (isNaN(displayOutput)) {
+                console.error("Invalid displayOutput:", displayOutput);
+                return;
             }
 
-            drawGauge(canvasId, numericEValue, lsl, usl, ltl, utl, displayOutput);
+            // Process display output if stepNo matches
+            if (stepNoString === currentStep.toString()) {
+                if (document.getElementById('stop-btn').innerHTML.includes("STOP")) {
+                    // Directly push the value into the corresponding gauge array
+                    if (gaugeIndex === 0) {
+                        displayOutputsGauge1.push(displayOutput);
+                    } else if (gaugeIndex === 1) {
+                        displayOutputsGauge2.push(displayOutput);
+                    } else if (gaugeIndex === 2) {
+                        displayOutputsGauge3.push(displayOutput);
+                    } else if (gaugeIndex === 3) {
+                        displayOutputsGauge4.push(displayOutput);
+                    } else {
+                        console.error("Invalid gauge name:", parameterName);
+                    }
+                }
+
+                // Draw the gauge
+                drawGauge(canvasId, numericEValue, lsl, usl, ltl, utl, displayOutput);
+            }
         }
     });
 
+
+
+
+
+
     if (currentStep === totalSteps && !stopBtnListenerAdded) {
-    document.getElementById('stop-btn').addEventListener('click', function () {
-        // Your existing logic here
-   
+    // Add event listener for the "Stop" button click
+    document.getElementById('stop-btn').addEventListener('click', handleStopBtnClick);
+    
+    // Add event listener for F5 key press
+    window.addEventListener('keydown', function (event) {
+        if (event.key === 'F5') {
+            event.preventDefault();  // Prevent the default behavior (e.g., page refresh)
+            handleStopBtnClick();    // Call the same logic when F5 is pressed
+        }
+    });
 
-     // Calculate Max, Min, and TIR for all gauges
-     const ResultsArray = calculateMaxMinTir();
-        console.log("TIR ,MAX ,MIN Results Array:", ResultsArray);
-   
-        // Array to store final gauge values
-        const finalGaugeValues = [
-            displayOutputsGauge1[displayOutputsGauge1.length - 1] || 0,
-            displayOutputsGauge2[displayOutputsGauge2.length - 1] || 0,
-            displayOutputsGauge3[displayOutputsGauge3.length - 1] || 0,
-            displayOutputsGauge4[displayOutputsGauge4.length - 1] || 0
-        ];
+    // Prevent multiple registrations by setting the flag to true
+    stopBtnListenerAdded = true;
+}
 
-       
+// Function that contains the existing logic
+function handleStopBtnClick() {
+    // Calculate Max, Min, and TIR for all gauges
+    const ResultsArray = calculateMaxMinTir();
+    console.log("TIR, MAX, MIN Results Array jjjjjjjjjjjjjjjjj:", ResultsArray);
 
-          // Log the array to the console
-        console.log("Final Gauge Values Array :", finalGaugeValues);
-        
+    // Array to store final gauge values
+    const finalGaugeValues = [
+        displayOutputsGauge1[displayOutputsGauge1.length - 1] || 0,
+        displayOutputsGauge2[displayOutputsGauge2.length - 1] || 0,
+        displayOutputsGauge3[displayOutputsGauge3.length - 1] || 0,
+        displayOutputsGauge4[displayOutputsGauge4.length - 1] || 0
+    ];
 
-        // Destructure the array for individual values
-        const [gauge0Final, gauge1Final, gauge2Final, gauge3Final] = finalGaugeValues;
+    // Log the array to the console
+    console.log("Final Gauge Values Array :", finalGaugeValues);
 
-        const finalDecisions = [
-            determineDecision(gauge0Final, ltl, lsl, usl, utl),
-            determineDecision(gauge1Final, ltl, lsl, usl, utl),
-            determineDecision(gauge2Final, ltl, lsl, usl, utl),
-            determineDecision(gauge3Final, ltl, lsl, usl, utl),
-        ];
+    // Destructure the array for individual values
+    const [gauge0Final, gauge1Final, gauge2Final, gauge3Final] = finalGaugeValues;
 
-        // Default overall status
+    const finalDecisions = [
+        determineDecision(gauge0Final, ltl, lsl, usl, utl),
+        determineDecision(gauge1Final, ltl, lsl, usl, utl),
+        determineDecision(gauge2Final, ltl, lsl, usl, utl),
+        determineDecision(gauge3Final, ltl, lsl, usl, utl),
+    ];
+
+    // Default overall status
     let overallStatus = "ACCEPT"; 
     let backgroundColor = "#0f0";  // Default background color for "ACCEPT"
 
@@ -898,29 +1003,24 @@ function displaySerialData(parameterName, probeNumber, lowMaster, highMaster, ls
         backgroundColor = "yellow";  // Set background color to yellow for "Rework"
     }
 
-        console.log("Final Overall Status:", overallStatus);
+    console.log("Final Overall Status:", overallStatus);
 
-        // Display the overall status in the input field
-        const overallStatusInput = document.getElementById("overall_status");
-        if (overallStatusInput) {
-            overallStatusInput.value = overallStatus;
-            overallStatusInput.style.backgroundColor = backgroundColor;
-        } else {
-            console.error("Overall status input field not found.");
-        }
+    // Display the overall status in the input field
+    const overallStatusInput = document.getElementById("overall_status");
+    if (overallStatusInput) {
+        overallStatusInput.value = overallStatus;
+        overallStatusInput.style.backgroundColor = backgroundColor;
+    } else {
+        console.error("Overall status input field not found.");
+    }
 
-        // Call DataToSend with a 1-second delay, ensuring it is only called once
-        if (!dataSent) {
-                setTimeout(function() {
-                    DataToSend(finalGaugeValues, ResultsArray);
-                    dataSent = true;
-                }, 1000);  // 1000 milliseconds = 1 second
-            }
- 
-    });
- // Prevent multiple registrations by setting the flag to true
- stopBtnListenerAdded = true;
-   
+    // Call DataToSend with a 1-second delay, ensuring it is only called once
+    if (!dataSent) {
+        setTimeout(function() {
+            DataToSend(finalGaugeValues, ResultsArray);
+            dataSent = true;
+        }, 1000);  // 1000 milliseconds = 1 second
+    }
 }
 
    
@@ -1209,6 +1309,14 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("report_btn_main").click(); // Simulate a click on the report_btn
         }
     });
+
+     // Optional: F6 key press listener to trigger the same action as the report_btn click
+     document.addEventListener("keydown", function (e) {
+        if (e.key === "F8") { // Check if F6 key is pressed
+            e.preventDefault(); // Prevent default behavior of F6
+            document.getElementById("report_btn").click(); // Simulate a click on the report_btn
+        }
+    });
 });
 
 
@@ -1242,6 +1350,34 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+///////////////////////////////////////////////////////////////////////////////////////////
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Function to handle the click event
+    function handleClickspcCharts() {
+        const partName = document.getElementById("part_model").value.trim();
+
+        if (!partName) {
+            alert("Please enter a part model!");
+            return;
+        }
+
+        // Redirect to the report/ page with the part_model as a query parameter
+        const redirectUrl = `/spcCharts/?part_model=${encodeURIComponent(partName)}`;
+        window.location.href = redirectUrl;
+    }
+
+    // Event listener for the button click
+    document.getElementById("spc_btn").addEventListener("click", handleClickspcCharts);
+
+    // Event listener for the F3 key press
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "F7") { // Check if the pressed key is F3
+            e.preventDefault(); // Prevent the default F3 action
+            handleClickspcCharts(); // Trigger the handleClick function
+        }
+    });
+});
 
 
 
