@@ -9,7 +9,8 @@
     <title>Measurement</title>
    
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/measurements.css'%}">
+    <link rel="stylesheet" href="{% static 'css/measurementsss.css'%}">
+    
     
 </head>
 <body>
@@ -26,6 +27,7 @@
             <input type="text" id="date_time" >
             <input type="text" id="operator" >
             <input type="text" id="shift" class="shift-name">
+            <input type="text" id="message" style="margin-left: 1%;">
             <button type="submit" id="exit_btn">
                 <i class="fas fa-sign-out-alt" id="exit_icon"></i>
             </button>
@@ -204,6 +206,29 @@
    
    
 <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+            // Get the username passed from the backend
+            let receivedUserName = "{{ username|safe }}";
+            console.log('Your receivedUserName is:', receivedUserName);
+
+            // Get the button element
+            const menuButton = document.getElementById("menu_btn");
+
+            // Add a click event listener to the button
+            menuButton.addEventListener("click", function (event) {
+                // Check if the username is SAADMIN
+                if (receivedUserName === "SAADMIN") {
+                    // Redirect to the comport page
+                    window.location.href = "{% url 'comport' %}";
+                } else {
+                    // Show an alert message and prevent redirection
+                    event.preventDefault();
+                    alert("You are not authorized to access this page.");
+                }
+            });
+        });
+
 document.addEventListener('keydown', function(event) {
         // Check for specific function keys
         switch (event.key) {
@@ -232,10 +257,6 @@ document.addEventListener('keydown', function(event) {
         }
     });
 
-document.getElementById("menu_btn").addEventListener("click", function() {
-        // Redirect to the measurement URL
-        window.location.href = "{% url 'comport' %}";
-    });
 
 
     document.getElementById("exit_btn").addEventListener("click", function() {
@@ -1795,13 +1816,54 @@ setInterval(setDateTimes, 1000);
         
 
 
+
+// Initialize WebSocket connection
 // Initialize WebSocket connection
 const socket = new WebSocket('ws://localhost:8000/ws/measurement/');
 
+// Variables to track data activity
+let isConnected = false; // Tracks connection status
+let lastMessageTime = Date.now(); // Tracks the time of the last received message
+let timeoutDuration = 5000; // Set timeout duration (e.g., 5000ms = 5 seconds)
+
+// Function to check connection status periodically
+function checkConnection() {
+    const currentTime = Date.now();
+    const elapsedTime = currentTime - lastMessageTime;
+
+    // Check if the elapsed time exceeds the timeout duration
+    if (elapsedTime > timeoutDuration) {
+        if (isConnected) {
+            displayDisconnected(); // Change status to disconnected
+            isConnected = false;  // Mark as disconnected
+        }
+    } else {
+        if (!isConnected) {
+            displayConnected(); // Change status to connected
+            isConnected = true;  // Mark as connected
+        }
+    }
+}
+
+// Function to display "Connected" message
+function displayConnected() {
+    const messageBox = document.getElementById("message");
+    messageBox.value = "Connected";
+    messageBox.style.color = "black";
+    messageBox.style.backgroundColor = "green";
+}
+
+// Function to display "Disconnected" message
+function displayDisconnected() {
+    const messageBox = document.getElementById("message");
+    messageBox.value = "Disconnected";
+    messageBox.style.color = "black";
+    messageBox.style.backgroundColor = "red";
+}
 
 // Function to start serial communication
 function startSerialCommunication() {
-    // Wait until WebSocket is open
+    const messageBox = document.getElementById("message"); // Get the input box
     if (socket.readyState === WebSocket.OPEN) {
         const dbPort = document.getElementById("db_port").value;
         const comPorts = document.getElementById("com_ports").value;
@@ -1810,18 +1872,13 @@ function startSerialCommunication() {
         const stopbit = document.getElementById("stopbit").value;
         const databit = document.getElementById("databit").value;
 
-        console.log('Your COM port from front end:', comPorts);
-        console.log('Your DB port from front end:', dbPort);
-        console.log('Your Baud rate from front end:', baudRate);
-        console.log('Your Parity from front end:', parity);
-        console.log('Your Stopbit from front end:', stopbit);
-        console.log('Your Databit from front end:', databit);
+        console.log('COM port:', comPorts);
+        console.log('DB port:', dbPort);
 
         if (dbPort === comPorts) {
             const comparableValue = dbPort; // If equal, use dbPort
             console.log("Matching Value:", comparableValue);
 
-            // Send the serial port configuration to the server via WebSocket
             socket.send(JSON.stringify({
                 command: 'start_serial',
                 com_port: dbPort,
@@ -1831,33 +1888,53 @@ function startSerialCommunication() {
                 databit: databit,
             }));
 
+            displayConnected(); // Initially set to connected
+            lastMessageTime = Date.now(); // Reset the timer
         } else {
-            console.log("No Match");
+            displayDisconnected(); // Set to disconnected if ports don't match
         }
     } else {
-        // Retry startSerialCommunication after a short delay if WebSocket is not open
-        setTimeout(startSerialCommunication, 100); // Retry every 100ms until WebSocket is open
+        setTimeout(startSerialCommunication, 100); // Retry every 100ms if WebSocket isn't ready
     }
 }
 
 // WebSocket event listeners
 socket.onopen = function(event) {
     console.log("WebSocket connection established.");
-    startSerialCommunication(); // Call startSerialCommunication when WebSocket is open
+    startSerialCommunication();
 };
 
+// When data is received
 socket.onmessage = function(event) {
     const data = JSON.parse(event.data);
     const message = data.message;
 
-    // Append serial data to the textarea
-    const serialDataDisplay = document.getElementById("serial-data-display");
-    serialDataDisplay.value += message + '\n'; // Add new message to the textarea
-    serialDataDisplay.scrollTop = serialDataDisplay.scrollHeight; // Scroll to the bottom
+    // Update last message time
+    lastMessageTime = Date.now();
 
+    // Append data to textarea
+    const serialDataDisplay = document.getElementById("serial-data-display");
+    serialDataDisplay.value += message + '\n';
+    serialDataDisplay.scrollTop = serialDataDisplay.scrollHeight;
+
+    // Update status to connected
+    displayConnected();
 };
 
+// Handle errors
+socket.onerror = function(event) {
+    displayDisconnected();
+};
 
+// Handle close events
+socket.onclose = function(event) {
+    displayDisconnected();
+};
+
+// Periodically check connection status
+setInterval(checkConnection, 1000); // Check every 1 second
+
+// jQuery WebSocket handling for COM port
 $(document).ready(function () {
     const ws = new WebSocket('ws://localhost:8000/ws/comport/');
 
@@ -1865,22 +1942,24 @@ $(document).ready(function () {
         const data = JSON.parse(event.data);
         
         if (data.message) {
+            lastMessageTime = Date.now(); // Reset timer when data is received
+
             // Match "+" pattern
             const plusChannels = data.message.match(/[A-K]\+[^\+A-K]*/g);
             if (plusChannels) {
                 plusChannels.forEach(channel => {
                     const channelId = channel.charAt(0);
-                    const channelData = channel.substr(2); // Get the data after '+'
+                    const channelData = channel.substr(2);
                     $(`#probe-${channelId}`).val(channelData);
                 });
             }
-            
+
             // Match "-" pattern
             const minusChannels = data.message.match(/[A-K]\-[^\-A-K]*/g);
             if (minusChannels) {
                 minusChannels.forEach(channel => {
                     const channelId = channel.charAt(0);
-                    const channelData = channel.substr(2); // Get the data after '-'
+                    const channelData = channel.substr(2);
                     $(`#probe-${channelId}`).val(channelData);
                 });
             }

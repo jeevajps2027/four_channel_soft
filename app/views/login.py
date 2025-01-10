@@ -31,10 +31,12 @@ def login(request):
 
             # Check credentials
             if username == 'SAADMIN' and password == 'saadmin':
+                request.session['username'] = username
                 return JsonResponse({'status': 'success', 'message': 'Login successful', 'redirect': '/measurement/'})
             
             # Check against Operator_setting
             elif Operator_setting.objects.filter(operator_name=username).exists() and password == 'admin@1234':
+                request.session['username'] = username
                 return JsonResponse({'status': 'success', 'message': 'Login successful', 'redirect': '/measurement/'})
             else:
                 return JsonResponse({'status': 'error', 'message': 'Invalid username or password'})

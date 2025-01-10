@@ -184,6 +184,13 @@ def measurement(request):
 
         
 
+        username = request.session.get('username', 'Unknown User')
+
+        # Log the username in the console
+        print(f'Logged-in User: {username}')
+
+        
+
         context = {
             'part_model': part_model,
             'comport_com_port': comport_com_port,
@@ -194,6 +201,7 @@ def measurement(request):
             'comport_databit': comport_databit,
             'shift_time': json.dumps(shift_time),  # Pass serialized JSON data
             'user_name': json.dumps(user_name),
+            'username':username,
         }
 
         return render(request, 'app/measurement.html', context)

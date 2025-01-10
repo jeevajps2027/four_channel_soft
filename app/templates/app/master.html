@@ -11,13 +11,14 @@
     <title>Mastering</title>
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/mastering.css'%}">
+    <link rel="stylesheet" href="{% static 'css/masterings.css'%}">
   
 </head>
 <body>
     <div class="container_1">
         <div class="container_1_1">
             <input type="text" id="clock-box" >
+            <input type="text" id="message">
             <button type="button" id="close_btn">
                 <i class="fas fa-times" id="close_icon"></i>
             </button>
@@ -969,10 +970,23 @@ function showCustomAlert(message) {
 $(document).ready(function () {
     const ws = new WebSocket('ws://localhost:8000/ws/comport/');
 
+    const messageBox = document.getElementById("message"); // Get the input box
+
+    let dataReceived = false; // Track if data is received
+
+    ws.onopen = function () {
+        // Set initial disconnected state until data is received
+        messageBox.value = "Disconnected";
+        messageBox.style.color = "black";
+        messageBox.style.backgroundColor = "red";
+    };
+
     ws.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        
+
         if (data.message) {
+            dataReceived = true; // Mark data as received
+
             // Match "+" pattern
             const plusChannels = data.message.match(/[A-K]\+[^\+A-K]*/g);
             if (plusChannels) {
@@ -982,7 +996,7 @@ $(document).ready(function () {
                     $(`#probe-${channelId}`).val(channelData);
                 });
             }
-            
+
             // Match "-" pattern
             const minusChannels = data.message.match(/[A-K]\-[^\-A-K]*/g);
             if (minusChannels) {
@@ -992,6 +1006,27 @@ $(document).ready(function () {
                     $(`#probe-${channelId}`).val(channelData);
                 });
             }
+
+            // Display success message with green background and black text
+            messageBox.value = "Connected";
+            messageBox.style.color = "black";
+            messageBox.style.backgroundColor = "green";
+        }
+    };
+
+    ws.onerror = function () {
+        // Display error message with red background and black text
+        messageBox.value = "Disconnected";
+        messageBox.style.color = "black";
+        messageBox.style.backgroundColor = "red";
+    };
+
+    ws.onclose = function () {
+        if (!dataReceived) { // Check if data was never received
+            // Display error message with red background and black text
+            messageBox.value = "Disconnected";
+            messageBox.style.color = "black";
+            messageBox.style.backgroundColor = "red";
         }
     };
 });

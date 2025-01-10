@@ -33,6 +33,16 @@ body {
     text-align: center;
 }
 
+#message{
+    width: 10%;
+    height: 100%;
+    box-sizing: border-box;
+    margin-left: 50%;
+    font-weight: bold;
+    font-size: 1vw;
+    text-align: center;
+}
+
 /* Style for the button */
 #close_btn {
     display: inline-block;
@@ -43,7 +53,7 @@ body {
     cursor: pointer;
     height: 100%;
     width: 5%;
-    margin-left: 60%;
+    margin-left: 2%;
     transition: transform 0.2s ease, box-shadow 0.2s ease; /* Adds smooth hover effects */
 }
 
